@@ -2,7 +2,7 @@
 """
 Created on Tue Oct 02 16:05:10 2018
 
-@author: Edward
+@author: Inge, Edward
 """
 #imoports, constants
 import numpy as np
@@ -18,9 +18,10 @@ nhours=24.
 ndeg=360.
 radconv=ndeg/(2.*np.pi)
 add_date=np.array([0,31,59,90,120,151,181,212,243,273,304,334])
+crit_std=5.0
 
 #filename
-fn='S720082015int'
+fn='S420062018int'
 fn=fn+'.txt'
 f=open(fn)
 
@@ -61,6 +62,25 @@ pl.figure()
 pl.plot(time[:-2],-ndays*nhours*(time[:-2]-time[1:-1]))
 pl.show()
 
+def filter_dataset():
+    mean_height=np.mean(height)
+    std_height=np.std(height)
+    counter=0
+    while np.max(abs(height-np.mean(height))/np.std(height)) > crit_std:
+        for i in range(len(dataset[:,3])):
+            height_i=dataset[i,3]
+            if np.abs(height_i-mean_height)/std_height > crit_std:
+                height_i=0.5*dataset[(i-1),3]+0.5*dataset[(i+1),3]
+                lat_i=0.5*dataset[(i-1),2]+0.5*dataset[(i+1),2]
+                lon_i=0.5*dataset[(i-1),1]+0.5*dataset[(i+1),1]
+                dataset[i,1],dataset[i,2],dataset[i,3]=lon_i,lat_i,height_i
+        mean_height=np.mean(height)
+        std_height=np.std(height)
+        counter+=1
+    print(counter)
+
+filter_dataset()
+
 def compute_velocities(nstep,lons,lats,time,height):
     raw_velocities=np.zeros(((len(lons)-nstep),4))
     
@@ -81,16 +101,14 @@ def compute_velocities(nstep,lons,lats,time,height):
         velocity=(u**2.+v**2.)**(0.5)
         
         #put result in an array (inculding time)
-        raw_velocities[i,0]=0.5*(time[i+nstep]+time[i])
-        raw_velocities[i,1]=u
-        raw_velocities[i,2]=v
-        raw_velocities[i,3]=velocity
+        if dt < (2.*navg/(ndays*nhours)):
+            raw_velocities[i,0]=0.5*(time[i+nstep]+time[i])
+            raw_velocities[i,1]=u
+            raw_velocities[i,2]=v
+            raw_velocities[i,3]=velocity
         
     return raw_velocities
 
-#execute velocity calculation
-velocity_data=compute_velocities(nsteps,lons,lats,time,height)
-
 #some visualization
 title1=fn[:-4]+' vertical coordinate evolution in time'
 pl.figure(figsize=(12,8))
@@ -98,45 +116,6 @@ pl.title(title1)
 pl.plot(time,height)
 pl.grid()
 pl.ylabel('Height (m)')
-pl.xlabel('Time (yr)')
-pl.show()
-pl.figure(figsize=(12,8))
-title2=fn[:-4]+' absolute velocity evolution in time'
-pl.title(title2)
-pl.plot(velocity_data[:,0],velocity_data[:,3])
-pl.grid()
-pl.ylabel('Velocity (m/yr)')
-pl.xlabel('Time (yr)')
-pl.show()
-
-
-#%%
-
-ampslat=np.fft.fft(lats)
-indnum=int(len(lats)/navg)
-ampslat[indnum:-indnum]=0.0
-latsrec=np.fft.ifft(ampslat)
-ampslon=np.fft.fft(lons)
-ampslon[indnum:-indnum]=0.0
-lonsrec=np.fft.ifft(ampslon)
-
-velocity_data_fft=compute_velocities(1,lonsrec,latsrec,time,height)
-
-#some visualization
-title1=fn[:-4]+' vertical coordinate evolution in time'
-pl.figure(figsize=(12,8))
-pl.title(title1)
-pl.plot(time,height)
-pl.grid()
-pl.ylabel('Height (m)')
-pl.xlabel('Time (yr)')
-pl.show()
-pl.figure(figsize=(12,8))
-title2=fn[:-4]+' absolute velocity evolution in time'
-pl.title(title2)
-pl.plot(velocity_data_fft[indnum:-indnum,0],velocity_data_fft[indnum:-indnum,3])
-pl.grid()
-pl.ylabel('Velocity (m/yr)')
 pl.xlabel('Time (yr)')
 pl.show()
 
@@ -187,3 +166,9 @@ pl.show()
 pl.figure(figsize=(12,8))
 pl.plot(tavg[:-1],dt)
 pl.show()
+
+#%%
+pl.figure()
+pl.plot(velocity_data_daily_avg[:,0],velocity_data_daily_avg[:,3])
+pl.xlim(2000,2020)
+pl.ylim(0,500)
