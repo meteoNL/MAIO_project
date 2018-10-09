@@ -12,7 +12,7 @@ mpl.rcParams.update({'font.size': 21})
 nsteps=48 #number of time steps to use for differential calculations (velocity = dx/dt, nsteps is dt in hours if data are complete)
 r=6.37e6
 ndays=365.
-navg=48 #nbumber of hours to average signal 
+navg=72 #nbumber of hours to average signal 
 nhours=24.
 ndeg=360.
 radconv=ndeg/(2.*np.pi)
