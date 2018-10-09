@@ -8,6 +8,7 @@ Created on Tue Oct 02 16:05:10 2018
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as pl
+pl.close("all")
 mpl.rcParams.update({'font.size': 21})
 nsteps=48 #number of time steps to use for differential calculations (velocity = dx/dt, nsteps is dt in hours if data are complete)
 r=6.37e6
@@ -19,7 +20,7 @@ radconv=ndeg/(2.*np.pi)
 add_date=np.array([0,31,59,90,120,151,181,212,243,273,304,334])
 
 #filename
-fn='S420062011int'
+fn='S720082015int'
 fn=fn+'.txt'
 f=open(fn)
 
@@ -30,23 +31,24 @@ for line in f:
     #split a record in segments containing date, spatial information, etc
     line=line.split(',')
     
-    #conversion to date: first ordinary years
-    if int(line[0][0:2])%4!=0:
-        date=2e3+int(line[0][0:2])+add_date[int(line[0][-4:-2])-1]/ndays+(int(line[0][-2:])-1)/ndays+int(line[1][:2])/(nhours*ndays)
-    #leap year case
-    else:
-        date=2e3+int(line[0][0:2])+add_date[int(line[0][-4:-2])-1]/(ndays+1)+(int(line[0][-2:])-1)/(ndays+1)+int(line[1][:2])/(nhours*(ndays+1))
-        if int(line[0][-4:-2]) > 2.5:
-            date+=1./(ndays+1)
-    #end of date conversion
-    
-    #get position
-    lon=float(line[2])
-    lat=float(line[3])
-    z=float(line[4])
-    
-    #add to dataset
-    dataset=np.append(dataset,[date,lon,lat,z])
+    if line[0] !='\n':
+        #conversion to date: first ordinary years
+        if int(line[0][0:2])%4!=0:
+            date=2e3+int(line[0][0:2])+add_date[int(line[0][-4:-2])-1]/ndays+(int(line[0][-2:])-1)/ndays+int(line[1][:2])/(nhours*ndays)
+        #leap year case
+        else:
+            date=2e3+int(line[0][0:2])+add_date[int(line[0][-4:-2])-1]/(ndays+1)+(int(line[0][-2:])-1)/(ndays+1)+int(line[1][:2])/(nhours*(ndays+1))
+            if int(line[0][-4:-2]) > 2.5:
+                date+=1./(ndays+1)
+        #end of date conversion
+        
+        #get position
+        lon=float(line[2])
+        lat=float(line[3])
+        z=float(line[4])
+        
+        #add to dataset
+        dataset=np.append(dataset,[date,lon,lat,z])
     
 #reshape dataset to t,x,y,z-rows
 dataset=dataset.reshape((len(dataset)/4,4))
@@ -54,6 +56,10 @@ time=dataset[:,0]
 lons=dataset[:,1]
 lats=dataset[:,2]
 height=dataset[:,3]
+
+pl.figure()
+pl.plot(time[:-2],-ndays*nhours*(time[:-2]-time[1:-1]))
+pl.show()
 
 def compute_velocities(nstep,lons,lats,time,height):
     raw_velocities=np.zeros(((len(lons)-nstep),4))
@@ -175,4 +181,9 @@ pl.plot(velocity_data_daily_avg[:,0],velocity_data_daily_avg[:,3])
 pl.grid()
 pl.ylabel('Velocity (m/yr)')
 pl.xlabel('Time (yr)')
+pl.show()
+
+#%%
+pl.figure(figsize=(12,8))
+pl.plot(tavg[:-1],dt)
 pl.show()
