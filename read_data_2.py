@@ -82,7 +82,8 @@ def filter_dataset():
 filter_dataset()
 
 def compute_velocities(nstep,lons,lats,time,height):
-    raw_velocities=np.zeros(((len(lons)-nstep),4))
+#    raw_velocities=np.zeros(((len(lons)-nstep),4))
+    raw_velocities=np.array([])
     
     #calculations for each interval
     for i in range(len(lons)-nstep):
@@ -94,6 +95,7 @@ def compute_velocities(nstep,lons,lats,time,height):
         dx=(lons[i+nstep]-lons[i])*correction_factor*np.cos(lats[i]/radconv)
         dy=(lats[i+nstep]-lats[i])*correction_factor
         dt=time[i+nstep]-time[i]
+        time_t=0.5*(time[i+nstep]+time[i])
         
         #calculate velocity components and absolute velocity in m/yr
         u=dx/dt
@@ -102,12 +104,10 @@ def compute_velocities(nstep,lons,lats,time,height):
         
         #put result in an array (inculding time)
         if dt < (2.*navg/(ndays*nhours)):
-            raw_velocities[i,0]=0.5*(time[i+nstep]+time[i])
-            raw_velocities[i,1]=u
-            raw_velocities[i,2]=v
-            raw_velocities[i,3]=velocity
-        
-    return raw_velocities[:,0],raw_velocities[:,1],raw_velocities[:,2],raw_velocities[:,3]
+            raw_velocities=np.append(raw_velocities,np.array([time_t,u,v,velocity]))
+        #raw_velocities=np.reshape(raw_velocities,(int(len(raw_velocities)/4),4))
+    print(np.shape(raw_velocities))
+    return raw_velocities[0::4],raw_velocities[1::4],raw_velocities[2::4],raw_velocities[3::4]
 
 #some visualization
 title1=fn[:2]+' vertical coordinate evolution in time'
