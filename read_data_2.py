@@ -10,7 +10,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as pl
 pl.close("all")
 mpl.rcParams.update({'font.size': 21})
-nsteps=48 #number of time steps to use for differential calculations (velocity = dx/dt, nsteps is dt in hours if data are complete)
+#nsteps=48 #number of time steps to use for differential calculations (velocity = dx/dt, nsteps is dt in hours if data are complete)
 r=6.37e6
 ndays=365.
 navg=48 #nbumber of hours to average signal 
@@ -107,10 +107,10 @@ def compute_velocities(nstep,lons,lats,time,height):
             raw_velocities[i,2]=v
             raw_velocities[i,3]=velocity
         
-    return raw_velocities
+    return raw_velocities[:,0],raw_velocities[:,1],raw_velocities[:,2],raw_velocities[:,3]
 
 #some visualization
-title1=fn[:-4]+' vertical coordinate evolution in time'
+title1=fn[:2]+' vertical coordinate evolution in time'
 pl.figure(figsize=(12,8))
 pl.title(title1)
 pl.plot(time,height)
@@ -142,10 +142,10 @@ def averagingcomputation():
     return tavgold,lonsavg,latsavg,zavg,tavg,dt
         
 tavgold,lonsavg,latsavg,zavg,tavg,dt=averagingcomputation()
-velocity_data_daily_avg=compute_velocities(1,lonsavg,latsavg,tavg,zavg)
+timeval,uval,vval,velval=compute_velocities(1,lonsavg,latsavg,tavg,zavg)
 
 #some visualization
-title1=fn[:-4]+' vertical coordinate evolution in time, '+str(navg)+' hours average'
+title1=fn[:2]+' vertical coordinate evolution in time, '+str(navg)+' hours average'
 pl.figure(figsize=(12,8))
 pl.title(title1)
 pl.plot(tavg[1:],zavg)
@@ -154,9 +154,9 @@ pl.ylabel('Height (m)')
 pl.xlabel('Time (yr)')
 pl.show()
 pl.figure(figsize=(12,8))
-title2=fn[:-4]+' absolute velocity evolution in time, '+str(navg)+' hours average'
+title2=fn[:2]+' absolute velocity evolution in time, '+str(navg)+' hours average'
 pl.title(title2)
-pl.plot(velocity_data_daily_avg[:,0],velocity_data_daily_avg[:,3])
+pl.plot(timeval,velval)
 pl.grid()
 pl.ylabel('Velocity (m/yr)')
 pl.xlabel('Time (yr)')
@@ -169,6 +169,6 @@ pl.show()
 
 #%%
 pl.figure()
-pl.plot(velocity_data_daily_avg[:,0],velocity_data_daily_avg[:,3])
+pl.plot(timeval,velval)
 pl.xlim(2000,2020)
 pl.ylim(0,500)
