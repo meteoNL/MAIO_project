@@ -10,7 +10,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as pl
 pl.close("all")
 mpl.rcParams.update({'font.size': 21})
-#nsteps=48 #number of time steps to use for differential calculations (velocity = dx/dt, nsteps is dt in hours if data are complete)
 r=6.37e6
 ndays=365.
 navg=48 #nbumber of hours to average signal 
@@ -21,7 +20,7 @@ add_date=np.array([0,31,59,90,120,151,181,212,243,273,304,334])
 crit_std=5.0
 
 #filename
-fn='S420062018int'
+fn='S4'
 fn=fn+'.txt'
 f=open(fn)
 
@@ -50,6 +49,8 @@ for line in f:
         
         #add to dataset
         dataset=np.append(dataset,[date,lon,lat,z])
+
+f.close()
     
 #reshape dataset to t,x,y,z-rows
 dataset=dataset.reshape((len(dataset)/4,4))
@@ -57,10 +58,6 @@ time=dataset[:,0]
 lons=dataset[:,1]
 lats=dataset[:,2]
 height=dataset[:,3]
-
-pl.figure()
-pl.plot(time[:-2],-ndays*nhours*(time[:-2]-time[1:-1]))
-pl.show()
 
 def filter_dataset():
     mean_height=np.mean(height)
@@ -82,7 +79,6 @@ def filter_dataset():
 filter_dataset()
 
 def compute_velocities(nstep,lons,lats,time,height):
-#    raw_velocities=np.zeros(((len(lons)-nstep),4))
     raw_velocities=np.array([])
     
     #calculations for each interval
@@ -103,10 +99,8 @@ def compute_velocities(nstep,lons,lats,time,height):
         velocity=(u**2.+v**2.)**(0.5)
         
         #put result in an array (inculding time)
-        if dt < (2.*navg/(ndays*nhours)):
+        if dt < (2.*navg/(ndays*nhours)) and dt > 0.00:
             raw_velocities=np.append(raw_velocities,np.array([time_t,u,v,velocity]))
-        #raw_velocities=np.reshape(raw_velocities,(int(len(raw_velocities)/4),4))
-    print(np.shape(raw_velocities))
     return raw_velocities[0::4],raw_velocities[1::4],raw_velocities[2::4],raw_velocities[3::4]
 
 #some visualization
@@ -126,29 +120,27 @@ def averagingcomputation():
     lonsavg=np.array([])
     latsavg=np.array([])
     zavg=np.array([])
-    tavg=np.array([time[0]])
-    dt=np.array([])
+    tavg=np.array([])
+    #dt=np.array([])
     
     for i in range(0,int(len(lons)/navg)):
-        tavgold=tavg
         startind=i*navg
         endind=(i+1)*navg
         lonsavg=np.append(lonsavg,np.mean(lons[startind:endind]))
         latsavg=np.append(latsavg,np.mean(lats[startind:endind]))
         zavg=np.append(zavg,np.mean(height[startind:endind]))
         tavg=np.append(tavg,np.mean(time[startind:endind]))
-        dtnew=tavg[-1]-tavg[-2]
-        dt=np.append(dt,np.array([dtnew]))
-    return tavgold,lonsavg,latsavg,zavg,tavg,dt
+
+    return lonsavg,latsavg,zavg,tavg
         
-tavgold,lonsavg,latsavg,zavg,tavg,dt=averagingcomputation()
+lonsavg,latsavg,zavg,tavg=averagingcomputation()
 timeval,uval,vval,velval=compute_velocities(1,lonsavg,latsavg,tavg,zavg)
 
 #some visualization
 title1=fn[:2]+' vertical coordinate evolution in time, '+str(navg)+' hours average'
 pl.figure(figsize=(12,8))
 pl.title(title1)
-pl.plot(tavg[1:],zavg)
+pl.plot(tavg,zavg)
 pl.grid()
 pl.ylabel('Height (m)')
 pl.xlabel('Time (yr)')
@@ -161,14 +153,4 @@ pl.grid()
 pl.ylabel('Velocity (m/yr)')
 pl.xlabel('Time (yr)')
 pl.show()
-
-#%%
-pl.figure(figsize=(12,8))
-pl.plot(tavg[:-1],dt)
-pl.show()
-
-#%%
-pl.figure()
-pl.plot(timeval,velval)
-pl.xlim(2000,2020)
-pl.ylim(0,500)
+f.close()
