@@ -99,7 +99,7 @@ def compute_velocities(nstep,lons,lats,time,height):
         velocity=(u**2.+v**2.)**(0.5)
         
         #put result in an array (inculding time)
-        if dt < (2.*navg/(ndays*nhours)) and dt > 0.00:
+        if dt < (1.25*navg/(ndays*nhours)) and dt > 0.00:
             raw_velocities=np.append(raw_velocities,np.array([time_t,u,v,velocity]))
     return raw_velocities[0::4],raw_velocities[1::4],raw_velocities[2::4],raw_velocities[3::4]
 
