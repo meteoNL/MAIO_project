@@ -12,13 +12,14 @@ pl.close("all")
 mpl.rcParams.update({'font.size': 21})
 r=6.37e6
 ndays=365.
-navg=48 #nbumber of hours to average signal 
+navg=96 #nbumber of hours to average signal 
 nhours=24.
 ndeg=360.
 radconv=ndeg/(2.*np.pi)
 add_date=np.array([0,31,59,90,120,151,181,212,243,273,304,334])
 crit_std=5.0
 
+#%% read data
 #filename
 fn='S4'
 fn=fn+'.txt'
@@ -59,25 +60,32 @@ lons=dataset[:,1]
 lats=dataset[:,2]
 height=dataset[:,3]
 
+#%%selection
+#remove zeros for latitude and longitude
+time=time[lons<0]
+height=height[lons<0]
+lats=lats[lons<0]
+lons=lons[lons<0]
+    
 def filter_dataset():
     mean_height=np.mean(height)
     std_height=np.std(height)
     counter=0
-    while np.max(abs(height-np.mean(height))/np.std(height)) > crit_std:
-        for i in range(len(dataset[:,3])):
-            height_i=dataset[i,3]
-            if np.abs(height_i-mean_height)/std_height > crit_std:
-                height_i=0.5*dataset[(i-1),3]+0.5*dataset[(i+1),3]
-                lat_i=0.5*dataset[(i-1),2]+0.5*dataset[(i+1),2]
-                lon_i=0.5*dataset[(i-1),1]+0.5*dataset[(i+1),1]
-                dataset[i,1],dataset[i,2],dataset[i,3]=lon_i,lat_i,height_i
+    while np.max(np.abs(height-mean_height)/std_height) > crit_std:
+        for i in range(len(height)):
+            height_i=height[i]
+            if np.abs(height_i-mean_height)/std_height > crit_std: 
+                height_i=0.5*height[(i-1)]+0.5*height[(i+1)]
+                lat_i=0.5*lats[(i-1)]+0.5*lats[(i+1)]
+                lon_i=0.5*lons[(i-1)]+0.5*lons[(i+1)]
+                lons[i],lats[i],height[i]=lon_i,lat_i,height_i
         mean_height=np.mean(height)
         std_height=np.std(height)
         counter+=1
-    print(counter)
 
 filter_dataset()
 
+#%% velocity computation function
 def compute_velocities(nstep,lons,lats,time,height):
     raw_velocities=np.array([])
     
@@ -104,7 +112,7 @@ def compute_velocities(nstep,lons,lats,time,height):
     return raw_velocities[0::4],raw_velocities[1::4],raw_velocities[2::4],raw_velocities[3::4]
 
 #some visualization
-title1=fn[:2]+' vertical coordinate evolution in time'
+title1=fn[:-4]+' vertical coordinate evolution in time'
 pl.figure(figsize=(12,8))
 pl.title(title1)
 pl.plot(time,height)
@@ -121,7 +129,6 @@ def averagingcomputation():
     latsavg=np.array([])
     zavg=np.array([])
     tavg=np.array([])
-    #dt=np.array([])
     
     for i in range(0,int(len(lons)/navg)):
         startind=i*navg
@@ -137,7 +144,7 @@ lonsavg,latsavg,zavg,tavg=averagingcomputation()
 timeval,uval,vval,velval=compute_velocities(1,lonsavg,latsavg,tavg,zavg)
 
 #some visualization
-title1=fn[:2]+' vertical coordinate evolution in time, '+str(navg)+' hours average'
+title1=fn[:-4]+' vertical coordinate evolution in time, '+str(navg)+' hours average'
 pl.figure(figsize=(12,8))
 pl.title(title1)
 pl.plot(tavg,zavg)
@@ -146,11 +153,11 @@ pl.ylabel('Height (m)')
 pl.xlabel('Time (yr)')
 pl.show()
 pl.figure(figsize=(12,8))
-title2=fn[:2]+' absolute velocity evolution in time, '+str(navg)+' hours average'
+title2=fn[:-4]+' absolute velocity evolution in time, '+str(navg)+' hours average'
 pl.title(title2)
 pl.plot(timeval,velval)
 pl.grid()
 pl.ylabel('Velocity (m/yr)')
 pl.xlabel('Time (yr)')
 pl.show()
-f.close()
+
