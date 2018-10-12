@@ -69,6 +69,18 @@ height=dataset[:,3]
 
 #mi=0
 #f=0
+nbins=60
+pl.plot(height)
+pl.plot(lats)
+pl.plot(lons)
+pl.show()
+pl.hist(lats[lats>65],bins=nbins,range=(67.09413,67.09443))
+pl.show()
+pl.hist(lons[lons<0],bins=nbins,range=(-50.065,-50.06))
+pl.show()
+pl.hist(height[height>0],bins=nbins,range=(475,575))
+pl.show()
+print(np.std(height[height>0]),np.mean(height[height>0],np.min(height[height>0]),np.max(height[height>0])))
 for y in range (0,len(height)):
     if height[y]==0.:
         height[y]=-10000.

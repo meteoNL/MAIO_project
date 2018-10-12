@@ -62,103 +62,30 @@ lons=dataset[:,1]
 lats=dataset[:,2]
 height=dataset[:,3]
 
-#height=height[height!=0.]
-#lons=lons[height!=0.]
-#lats=lats[height!=0.]
-#timecom=timecom[height!=0.]
+#remove zeros
+time=time[height>0]
+lons=lons[height>0]
+lats=lats[height>0]
+height=height[height>0]
+startind=70
+endind=-12
 
-#mi=0
-#f=0
-
-for y in range (0,len(height)): #in deze file zijn er punten handmatig uit gehaald, timecom is de nieuwe lijst met tijden waarbij tijden van verwijderde punten eruit zijn. evt kan ik de data interpoleren naar de oude tijdslijst (met begin en eind eruit gehaald, voor zover dat voor hoogte is gedaan) 
-    if height[y]==0.:
-        height[y]=-10000.
-        lons[y]=-10000.
-        lats[y]=-10000.
-        timecom[y]=-10000.
-
-height=height[height!=-10000.]
-lons=lons[lons!=-10000.]
-lats=lats[lats!=-10000.]
-timecom=timecom[timecom!=-10000.]
-hold=len(height)
-hei=height[:500]
-height=height[height>100]
-istart=hold-len(height)
-lats=lats[istart:]
-lons=lons[istart:]
-timecom=timecom[istart:]
-height=height[:-9]
-lats=lats[:-9]
-lons=lons[:-9]
-timecom=timecom[:-9]
-print(len(timecom), len(lats), len(lons), len(height))
-
-
-
-
-#print('length t, h before loop:')
-#print(len(timecom),len(height))
-
-#time=timecom
-#co=0
-#
-#def filter_dataset():
-#    mean_height=np.mean(height)
-#    std_height=np.std(height)
-#    counter=0
-#    co=0
-#    while np.max(np.abs(height-mean_height)/std_height) > crit_std:
-#        for i in range(0,(len(height)-1)):
-#            height_i=height[i]
-#            if np.abs(height_i-mean_height)/std_height > crit_std: 
-#                height_i=0.5*height[(i-1)]+0.5*height[(i+1)]
-#                lat_i=0.5*lats[(i-1)]+0.5*lats[(i+1)]
-#                lon_i=0.5*lons[(i-1)]+0.5*lons[(i+1)]
-#                lons[i],lats[i],height[i]=lon_i,lat_i,height_i
-#        mean_height=np.mean(height)
-#        std_height=np.std(height)
-#        counter+=1
-#        co=co+1
-#        print(co)
-#
-#filter_dataset()
-
-
-#mean_height=np.mean(height)
-#std_height=np.std(height)
-#counter=0
-#n=0
-#height1=height
-#newlength=len(height1)
-#while np.max((abs(height1)-np.mean(height1))/np.std(height1)) > crit_std:
-#
-#    newlength=len(height)-1
-#    print(newlength)
-#    print('mean/std ding is:')
-#    print(np.max(np.abs(height-mean_height)/std_height))
-#    for i in range(newlength):#-1 gedaan zodat hij het accepteert
-#        height_i=height[i]
-#
-#
-#        if np.abs(height_i-mean_height)/std_height > crit_std:
-#            height[i]=-10000.
-#            lats[i]=-10000.
-#            lons[i]=-10000.
-#            timecom[i]=-10000.
-#            n=n+1
-#        height=height[height!=-10000.]
-#        lons=lons[lons!=-10000.]
-#        lats=lats[lats!=-10000.]
-#        timecom=timecom[timecom!=-10000.]
-#        newlength=len(height)-1
-#
-#
-#    mean_height=np.mean(height)
-#    std_height=np.std(height)
-#    counter+=1
-#print(counter)
-
+#remove pre-installation and post-deinstallation
+time=time[startind:endind]
+lats=lats[startind:endind]
+lons=lons[startind:endind]
+height=height[startind:endind]
+meanheight=np.mean(height)
+print(np.max(height),np.min(height),np.std(height),meanheight)
+pl.plot(height)
+pl.show()
+pl.hist(height,bins=60)
+pl.ylim(0,50)
+pl.show()
+pl.hist(np.abs(height-meanheight),bins=50)
+pl.show()
+pl.hist(np.abs(height-meanheight),bins=50)
+pl.ylim(0,50)
 
 
 pl.figure(figsize=(12,8))
