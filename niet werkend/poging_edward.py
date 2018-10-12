@@ -77,6 +77,7 @@ lons=lons[startind:endind]
 height=height[startind:endind]
 meanheight=np.mean(height)
 print(np.max(height),np.min(height),np.std(height),meanheight)
+
 pl.plot(height)
 pl.show()
 pl.hist(height,bins=60)
