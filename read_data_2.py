@@ -21,7 +21,7 @@ crit_std=5.0
 
 #%% read data
 #filename
-fn='S4'
+fn='S8'
 fn=fn+'.txt'
 f=open(fn)
 
@@ -72,6 +72,7 @@ def filter_dataset():
     std_height=np.std(height)
     counter=0
     while np.max(np.abs(height-mean_height)/std_height) > crit_std:
+        print(counter)
         for i in range(len(height)):
             height_i=height[i]
             if np.abs(height_i-mean_height)/std_height > crit_std: 
@@ -139,8 +140,33 @@ def averagingcomputation():
         tavg=np.append(tavg,np.mean(time[startind:endind]))
 
     return lonsavg,latsavg,zavg,tavg
+
+
+#function below doesnt take iterative standard deviation and mean into account yet 
+def postproc():
+    gradlatsavg=np.gradient(latsavg)
+    gradlonsavg=np.gradient(lonsavg)
+    meangradlat=np.mean(gradlatsavg)
+    meangradlon=np.mean(gradlonsavg)
+    stdgradlat=np.std(gradlatsavg)
+    stdgradlon=np.std(gradlonsavg)
+    trans_x=0.
+    trans_y=0.
+    for i in range(1,len(lonsavg)):
+        gradlon_i=lonsavg[i]-lonsavg[i-1]
+        gradlat_i=latsavg[i]-latsavg[i-1]
+        if np.abs(gradlat_i-meangradlat)/stdgradlat > crit_std or np.abs(gradlon_i-meangradlon)/stdgradlon > crit_std:
+            trans_xcor=0.5*(lonsavg[i-2]-lonsavg[i-1]+lonsavg[i+1]-lonsavg[i])
+            trans_ycor=0.5*(latsavg[i-2]-latsavg[i-1]+latsavg[i+1]-latsavg[i])
+            trans_x=lonsavg[i]-lonsavg[i-1]-trans_xcor
+            trans_y=latsavg[i]-latsavg[i-1]-trans_ycor
+            print(trans_x,trans_y)
+            lonsavg[i:]=lonsavg[i:]-trans_x
+            latsavg[i:]=latsavg[i:]-trans_y
+    return lonsavg,latsavg
         
 lonsavg,latsavg,zavg,tavg=averagingcomputation()
+lonsavg,latsavg=postproc()
 timeval,uval,vval,velval=compute_velocities(1,lonsavg,latsavg,tavg,zavg)
 
 #some visualization
