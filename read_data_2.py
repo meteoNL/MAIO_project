@@ -17,11 +17,12 @@ nhours=24.
 ndeg=360.
 radconv=ndeg/(2.*np.pi)
 add_date=np.array([0,31,59,90,120,151,181,212,243,273,304,334])
-crit_std=5.0
+crit_std=10.0
+crit_dt=1.25
 
 #%% read data
 #filename
-fn='S8'
+fn='S4'
 fn=fn+'.txt'
 f=open(fn)
 
@@ -108,7 +109,7 @@ def compute_velocities(nstep,lons,lats,time,height):
         velocity=(u**2.+v**2.)**(0.5)
         
         #put result in an array (inculding time)
-        if dt < (1.25*navg/(ndays*nhours)) and dt > 0.00:
+        if dt < (crit_dt*navg/(ndays*nhours)) and dt > 0.00:
             raw_velocities=np.append(raw_velocities,np.array([time_t,u,v,velocity]))
     return raw_velocities[0::4],raw_velocities[1::4],raw_velocities[2::4],raw_velocities[3::4]
 
@@ -141,28 +142,53 @@ def averagingcomputation():
 
     return lonsavg,latsavg,zavg,tavg
 
-
 #function below doesnt take iterative standard deviation and mean into account yet 
 def postproc():
-    gradlatsavg=np.gradient(latsavg)
-    gradlonsavg=np.gradient(lonsavg)
-    meangradlat=np.mean(gradlatsavg)
-    meangradlon=np.mean(gradlonsavg)
-    stdgradlat=np.std(gradlatsavg)
-    stdgradlon=np.std(gradlonsavg)
+    #generate dx and dy array and their means and std to check statistical behavior
+    gradlatsavg=latsavg[1:]-latsavg[:-1]
+    gradlonsavg=lonsavg[1:]-lonsavg[:-1]
+    meangradlat=np.mean(gradlatsavg[:])
+    meangradlon=np.mean(gradlonsavg[:])
+    stdgradlat=np.std(gradlatsavg[:])
+    stdgradlon=np.std(gradlonsavg[:])
+    
+    #translatetion array + bookkeeping 
     trans_x=0.
     trans_y=0.
-    for i in range(1,len(lonsavg)):
-        gradlon_i=lonsavg[i]-lonsavg[i-1]
-        gradlat_i=latsavg[i]-latsavg[i-1]
-        if np.abs(gradlat_i-meangradlat)/stdgradlat > crit_std or np.abs(gradlon_i-meangradlon)/stdgradlon > crit_std:
-            trans_xcor=0.5*(lonsavg[i-2]-lonsavg[i-1]+lonsavg[i+1]-lonsavg[i])
-            trans_ycor=0.5*(latsavg[i-2]-latsavg[i-1]+latsavg[i+1]-latsavg[i])
+    counter=0
+    checkarray=np.zeros(1)
+    
+    while len(checkarray) > 0: 
+        
+        print(np.max(np.abs(gradlatsavg[:]-meangradlat))/stdgradlat)
+        print(np.max(np.abs(gradlonsavg[:]-meangradlon))/stdgradlon)
+        indices=np.arange(len(gradlatsavg))
+        checkarray=indices[(np.abs(gradlatsavg-meangradlat))/stdgradlat > crit_std]
+        checkarray=np.append((indices[(np.abs(gradlonsavg-meangradlon))/stdgradlon > crit_std]),checkarray)
+        checkarray+=1
+        print(checkarray)
+        for i in checkarray:
+            if i > 1 and i < len(lonsavg):
+                trans_xcor=0.5*(lonsavg[i-2]-lonsavg[i-1]+lonsavg[i+1]-lonsavg[i])
+                trans_ycor=0.5*(latsavg[i-2]-latsavg[i-1]+latsavg[i+1]-latsavg[i])
+            elif i ==0:
+                trans_xcor=lonsavg[i+1]-lonsavg[i]
+                trans_ycor=latsavg[i+1]-latsavg[i]
+            elif i == len(lonsavg):
+                trans_xcor=lonsavg[i-2]-lonsavg[i-1]
+                trans_ycor=latsavg[i-2]-latsavg[i-1]
             trans_x=lonsavg[i]-lonsavg[i-1]-trans_xcor
             trans_y=latsavg[i]-latsavg[i-1]-trans_ycor
-            print(trans_x,trans_y)
             lonsavg[i:]=lonsavg[i:]-trans_x
             latsavg[i:]=latsavg[i:]-trans_y
+        gradlatsavg=latsavg[1:]-latsavg[:-1]
+        gradlonsavg=lonsavg[1:]-lonsavg[:-1]
+        meangradlat=np.mean(gradlatsavg[:])
+        meangradlon=np.mean(gradlonsavg[:])
+        stdgradlat=np.std(gradlatsavg[:])
+        stdgradlon=np.std(gradlonsavg[:])
+        counter+=1
+        print(counter)
     return lonsavg,latsavg
         
 lonsavg,latsavg,zavg,tavg=averagingcomputation()
@@ -187,3 +213,9 @@ pl.ylabel('Velocity (m/yr)')
 pl.xlabel('Time (yr)')
 pl.show()
 
+sep=';'
+g=open(fn[:-4]+'.csv','a')
+for i in range(len(timeval)-1):
+    line=str(timeval[i])+sep+str(uval[i])+sep+str(vval[i])+sep+str(velval[i])+sep+str(latsavg[i-1])+sep+str(lonsavg[i-1])+sep+str(latsavg[i])+sep+str(lonsavg[i])+sep+'\n'
+    g.write(line)
+g.close()

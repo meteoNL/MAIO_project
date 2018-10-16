@@ -88,6 +88,11 @@ pl.show()
 pl.hist(np.abs(height-meanheight),bins=50)
 pl.ylim(0,50)
 
+pl.plot(lats)
+pl.show()
+pl.figure()
+pl.plot(lons)
+pl.show()
 
 pl.figure(figsize=(12,8))
 pl.title('raw data')
