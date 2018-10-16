@@ -22,7 +22,7 @@ crit_dt=1.25
 
 #%% read data
 #filename
-fn='S4'
+fn='S10'
 fn=fn+'.txt'
 f=open(fn)
 
