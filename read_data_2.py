@@ -216,6 +216,6 @@ pl.show()
 sep=';'
 g=open(fn[:-4]+'.csv','a')
 for i in range(len(timeval)-1):
-    line=str(timeval[i])+sep+str(uval[i])+sep+str(vval[i])+sep+str(velval[i])+sep+str(latsavg[i-1])+sep+str(lonsavg[i-1])+sep+str(latsavg[i])+sep+str(lonsavg[i])+sep+'\n'
+    line=str(timeval[i])+sep+str(uval[i])+sep+str(vval[i])+sep+str(velval[i])+sep+str(latsavg[i])+sep+str(lonsavg[i])+sep+str(zavg[i])+sep+str(latsavg[i+1])+sep+str(lonsavg[i+1])+sep+str(zavg[i+1])+sep+'\n'
     g.write(line)
 g.close()
