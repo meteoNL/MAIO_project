@@ -59,13 +59,10 @@ def corr_vel(site,lag):
     pl.scatter(ymbvel[:,1],ymbvel[:,2])
     pl.show() 
     return ymbvel
-<<<<<<< HEAD
+
 corr_S7=corr_vel('S7')
 print(corr_S7)
 S6_dat=corr_vel('S6')
-=======
-corr_S7=corr_vel('S7',0)
-print(corr_S7)
 
 def crosscor(lijst1,lijst2,timelist):
 #    laglist=np.zeros([int(len(lijst1)-1)])
@@ -95,4 +92,3 @@ pl.title('Cross correlation',fontsize=22)
 pl.ylabel('Cross correlation',fontsize=16)
 pl.xlabel('Lag',fontsize=16)
 pl.grid(True)
->>>>>>> 5bfe61ad319f6a53367a4f757192755e98791074
