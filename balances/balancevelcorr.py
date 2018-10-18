@@ -32,7 +32,7 @@ pl.show()
   
 #velocity correlations
 start=2005
-end=2018
+end=2016
 def corr_vel(site):
     ymbvel=np.zeros((14,3))
     nm=site+'.csv'
@@ -48,14 +48,14 @@ def corr_vel(site):
         smallerth=largerth[tlargerth<y+1]
         if len(smallerth)>90:
             meanvel=np.mean(smallerth)
-            ymbvel[y-start,0]=bal[y-start,0]
+            ymbvel[y-start,0]=bal[(y-end),0]
             ymbvel[y-start,1]=meanvel
-            ymbvel[y-start,2]=bal[y-start,ind]
+            ymbvel[y-start,2]=bal[(y-end),ind]
             
     ymbvel=ymbvel[ymbvel[:,1]>0]
-    #pl.figure()
-    #pl.scatter(ymbvel[:,1],ymbvel[:,2])
-    #pl.show()
-    print(np.corrcoef(ymbvel[:,1],ymbvel[:,2]))    
+    pl.figure()
+    pl.scatter(ymbvel[:,1],ymbvel[:,2])
+    pl.show() 
     return ymbvel
-corr_vel('S7')
+corr_S7=corr_vel('S7')
+print(corr_S7)
