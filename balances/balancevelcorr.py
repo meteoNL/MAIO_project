@@ -59,3 +59,4 @@ def corr_vel(site):
     return ymbvel
 corr_S7=corr_vel('S7')
 print(corr_S7)
+S6_dat=corr_vel('S6')
