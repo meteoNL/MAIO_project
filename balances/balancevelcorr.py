@@ -60,9 +60,9 @@ def corr_vel(site,lag):
     pl.show() 
     return ymbvel
 
-corr_S7=corr_vel('S7')
+corr_S7=corr_vel('S7',0)
 print(corr_S7)
-S6_dat=corr_vel('S6')
+S6_dat=corr_vel('S6',0)
 
 def crosscor(lijst1,lijst2,timelist):
 #    laglist=np.zeros([int(len(lijst1)-1)])
