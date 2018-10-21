@@ -119,7 +119,8 @@ for key in names:
     correlations[key]=corr_vel(key)
 
 #correlation function for different time lags
-def crosscor(lijst1,lijst2,timelist):
+def crosscor(array):
+    lijst1,lijst2,timelist=array[:,2],array[:,1],array[:,0]
     
     #empty array to save data
     crosscorrlist=np.array([])
@@ -130,36 +131,60 @@ def crosscor(lijst1,lijst2,timelist):
         if len(lijst2[lag:])>2:
             
             #calculate correlation coefficient
+            
+            #note: the following print statement indicates that the function doesn't work properly if the record is incomplete!!! e.g. for S4 and S5 (so for these the results are not directly interpretable)
+            print((timelist[:(len(lijst1)-lag)]-timelist[lag:]))
+            print(key)
+            
             crosscorr=np.corrcoef(lijst1[:(len(lijst1)-lag)],lijst2[lag:])[0,1]
             cumcorr=cumcorr+crosscorr
             lagyears=timelist[lag]-timelist[0]
+            #end of correlation coefficient
             
             #append it to the array that saves data
             crosscorrlist=np.append(crosscorrlist,[lagyears,crosscorr,cumcorr])
-    return crosscorrlist
+            
+    #[0::3] gives lagyears, [1::3] gives crosscorr, [2::3] gives cumcorr
+    return crosscorrlist[0::3],crosscorrlist[1::3],crosscorrlist[2::3]
 
+def plotting(lag,y,z,season):
+    pl.figure()
+    pl.plot(lag,y,'b')
+    pl.plot(lag,z,'r')
+    pl.title('Balance and velocity '+str(key)+' '+str(season))
+    pl.ylabel('Cross correlation')
+    pl.xlabel('Lag')
+    pl.grid()
+    pl.show()
 
+yearlagcorr={}
+summerlagcorr={}
 
-##### Some visualzations #### ---- Vanaf hier ben ik het overzicht helemaal kwijt + ik had een vraag waarom we eigenlijk cumulatieve correlaties hadden
+for key in names:
+    yearcrosscorsite,summercrosscorsite=correlations[key][0],correlations[key][1]
+    yearlagcorr[key]=crosscor(yearcrosscorsite)
+    summerlagcorr[key]=crosscor(summercrosscorsite)
 
+for key in names:     
+    plotting(yearlagcorr[key][0],yearlagcorr[key][1],yearlagcorr[key][2],'year')
+    plotting(summerlagcorr[key][0],summerlagcorr[key][1],summerlagcorr[key][2], 'summer')
 
-
-crosscorrlist=crosscor(corr_S7[:,2],corr_S7[:,1],corr_S7[:,0])
-crosscorrlist=crosscorrlist.reshape((len(crosscorrlist)/3,3))
+##### Some visualzations #### is de optie hierboven niet beter? want dan zouden we ze meteen allemaal hebben berekend + ik vroeg me af wat cumulatieve correlatie voor de interpretatie heeft voor ons, wat kunnen we daarmee? 
+# als dat zo zou zijn, in dat geval kan onderstaande weg
+S7lagyears,S7crosscorr,S7cumcorr=crosscor(corr_S7)
 pl.figure()
-pl.plot(crosscorrlist[:,0],crosscorrlist[:,1],'b')
-pl.plot(crosscorrlist[:,0],crosscorrlist[:,2],'r')
-pl.title('Cross correlation',fontsize=22)
+pl.plot(S7lagyears,S7crosscorr,'b')
+pl.plot(S7lagyears,S7cumcorr,'r')
+pl.title('Cross correlation')
 pl.ylabel('Cross correlation',fontsize=16)
 pl.xlabel('Lag',fontsize=16)
 pl.grid(True)
 
-crosscorrlists=crosscor(corr_S7_summer[:,2],corr_S7_summer[:,1],corr_S7_summer[:,0])
-crosscorrlists=crosscorrlists.reshape((len(crosscorrlists)/3,3))
+sS7lagyears,sS7crosscorr,sS7cumcorr=crosscor(corr_S7_summer)
 pl.figure()
-pl.plot(crosscorrlists[:,0],crosscorrlists[:,1],'b')
-pl.plot(crosscorrlists[:,0],crosscorrlists[:,2],'r')
-pl.title('Cross correlation summer velocities',fontsize=22)
+pl.plot(sS7lagyears,sS7crosscorr,'b')
+pl.plot(sS7lagyears,sS7cumcorr,'r')
+pl.title('Cross correlation summer velocities')
 pl.ylabel('Cross correlation',fontsize=16)
 pl.xlabel('Lag',fontsize=16)
 pl.grid(True)
