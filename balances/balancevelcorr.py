@@ -124,7 +124,7 @@ def crosscor(array):
     
     #empty array to save data
     crosscorrlist=np.array([])
-    cumcorr=0.
+
     
     #loop over any lags that doesn't have less than 3 observations (because correlation cann not be calculated with 2 obs)
     for lag in range (0,int(len(lijst1)-1)):
@@ -137,20 +137,18 @@ def crosscor(array):
             print(key)
             
             crosscorr=np.corrcoef(lijst1[:(len(lijst1)-lag)],lijst2[lag:])[0,1]
-            cumcorr=cumcorr+crosscorr
             lagyears=timelist[lag]-timelist[0]
             #end of correlation coefficient
             
             #append it to the array that saves data
-            crosscorrlist=np.append(crosscorrlist,[lagyears,crosscorr,cumcorr])
+            crosscorrlist=np.append(crosscorrlist,[lagyears,crosscorr])
             
-    #[0::3] gives lagyears, [1::3] gives crosscorr, [2::3] gives cumcorr
-    return crosscorrlist[0::3],crosscorrlist[1::3],crosscorrlist[2::3]
+    #[0::3] gives lagyears, [1::3] gives crosscorr
+    return crosscorrlist[0::2],crosscorrlist[1::2]
 
-def plotting(lag,y,z,season):
+def plotting(lag,y,season):
     pl.figure()
     pl.plot(lag,y,'b')
-    pl.plot(lag,z,'r')
     pl.title('Balance and velocity '+str(key)+' '+str(season))
     pl.ylabel('Cross correlation')
     pl.xlabel('Lag')
@@ -166,25 +164,6 @@ for key in names:
     summerlagcorr[key]=crosscor(summercrosscorsite)
 
 for key in names:     
-    plotting(yearlagcorr[key][0],yearlagcorr[key][1],yearlagcorr[key][2],'year')
-    plotting(summerlagcorr[key][0],summerlagcorr[key][1],summerlagcorr[key][2], 'summer')
+    plotting(yearlagcorr[key][0],yearlagcorr[key][1],'year')
+    plotting(summerlagcorr[key][0],summerlagcorr[key][1], 'summer')
 
-##### Some visualzations #### is de optie hierboven niet beter? want dan zouden we ze meteen allemaal hebben berekend + ik vroeg me af wat cumulatieve correlatie voor de interpretatie heeft voor ons, wat kunnen we daarmee? 
-# als dat zo zou zijn, in dat geval kan onderstaande weg
-S7lagyears,S7crosscorr,S7cumcorr=crosscor(corr_S7)
-pl.figure()
-pl.plot(S7lagyears,S7crosscorr,'b')
-pl.plot(S7lagyears,S7cumcorr,'r')
-pl.title('Cross correlation')
-pl.ylabel('Cross correlation',fontsize=16)
-pl.xlabel('Lag',fontsize=16)
-pl.grid(True)
-
-sS7lagyears,sS7crosscorr,sS7cumcorr=crosscor(corr_S7_summer)
-pl.figure()
-pl.plot(sS7lagyears,sS7crosscorr,'b')
-pl.plot(sS7lagyears,sS7cumcorr,'r')
-pl.title('Cross correlation summer velocities')
-pl.ylabel('Cross correlation',fontsize=16)
-pl.xlabel('Lag',fontsize=16)
-pl.grid(True)
