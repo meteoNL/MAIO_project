@@ -167,9 +167,9 @@ for key in names:
 pl.figure(figsize=(12,8))
 for key in names:     
     season=', annual',plotting(yearlagcorr[key][0],yearlagcorr[key][1])
-    #season='summer',plotting(summerlagcorr[key][0],summerlagcorr[key][1])
-    #season='winter', plotting(winterlagcorr[key][0],winterlagcorr[key][1])
-pl.title('Balance and velocity relation '+str(season[0]))
+    #season=' summer',plotting(summerlagcorr[key][0],summerlagcorr[key][1])
+    #season=' winter', plotting(winterlagcorr[key][0],winterlagcorr[key][1])
+pl.title('Balance and velocity relation'+str(season[0]))
 pl.ylabel('Correlation coefficient (-)')
 pl.xlim(0,9)
 pl.xlabel('Lag (yr)')
