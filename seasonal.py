@@ -14,7 +14,7 @@ import matplotlib as mpl
 pl.close("all")
 mpl.rcParams.update({'font.size': 21})
 
-names=['S4','S5','S6','S7','S8','S9','S10','SHR'] #names of sites
+names=['SHR','S4','S5','S6','S7','S8','S9','S10'] #names of sites
 start=2006 #start year
 end=2019 #end year plus one
 num=91
@@ -52,9 +52,9 @@ pl.figure(figsize=(12,8))
 xaxis=np.linspace(0,ndays,13,dtype=np.int32)
 pl.title('Annual velocity cycle at all sites, mean, maximum and minimum')
 for i in range(len(names)):
-    pl.plot(data[:-1,0],data[:-1,i+1],label=names[i],c=(0.14*i,0.14,1.-0.14*i))
-    pl.plot(data[:-1,0],data[:-1,n+i+1],ls=':',c=(0.14*i,0.1,1.-0.14*i))
-    pl.plot(data[:-1,0],data[:-1,2*n+i+1],ls='--',c=(0.14*i,0.1,1.-0.14*i))
+    pl.plot(data[:-1,0],data[:-1,i+1],label=names[i],c=(0.14*i,1.-0.14*i,1.-0.14*i))
+    pl.plot(data[:-1,0],data[:-1,n+i+1],ls=':',c=(0.14*i,1.-0.14*i,1.-0.14*i))
+    pl.plot(data[:-1,0],data[:-1,2*n+i+1],ls='--',c=(0.14*i,1.-0.14*i,1.-0.14*i))
 pl.grid()
 pl.xticks(np.linspace(0,1,13),xaxis)
 pl.xlabel('Day of year')
@@ -63,12 +63,14 @@ pl.legend()
 pl.show()
 
 pl.figure(figsize=(12,8))
-pl.title('Annual velocity cycle at all sites')
+pl.title('Annual velocity cycle averaged over available years')
 for i in range(len(names)):
-    pl.plot(data[:-1,0],data[:-1,i+1],label=names[i],c=(0.14*i,0.14,1.-0.14*i))
+   # pl.scatter(data[:-1,0],data[:-1,i+1],label=names[i],c=(0.14*i,0.14,1.-0.14*i))
+    pl.plot(data[:-1,0],data[:-1,i+1],label=names[i],c=(0.14*i,1.-0.14*i,1.-0.14*i))
 pl.grid()
 pl.xticks(np.linspace(0,1,13),xaxis)
 pl.xlabel('Day of year')
 pl.ylabel('Velocity (m/yr)')
+pl.ylim(0,275)
 pl.legend()
 pl.show()

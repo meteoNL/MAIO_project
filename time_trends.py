@@ -16,7 +16,7 @@ import matplotlib as mpl
 pl.close("all")
 mpl.rcParams.update({'font.size': 21})
 
-names=['S4','S5','S6','S7','S8','S9','S10','SHR'] #names of sites
+names=['SHR','S4','S5','S6','S7','S8','S9','S10'] #names of sites
 start=2006 #start year
 end=2019 #end year plus one
 min_length=85 #length of observations per year criterion, in number of 96 hours intervals 
@@ -43,8 +43,9 @@ for key in values:
 print('annual trends')
 
 pl.figure(figsize=(12,8))
-#annual velocities time trend    
-for key in values:
+#annual velocities time trend  
+j=0  
+for key in names:
     
     #read time and velocity array per site
     time=values[key][:,0]
@@ -75,13 +76,14 @@ for key in values:
     new_time=new_time[new_time>0]
     
     #plot result
-    pl.scatter(new_time,new_vel)
-    pl.plot(new_time,new_vel,label=key)
+    pl.scatter(new_time,new_vel,c=(0.14*j,1.-0.14*j,1.-0.14*j))
+    pl.plot(new_time,new_vel,c=(0.14*j,1.-0.14*j,1.-0.14*j),label=key)
     
     #calculate statistical time trend significance using scipy linalg regression function
     linreg(new_time,new_vel)
+    j+=1
             
-pl.title('Annual average velocity based on 4 day samples')
+pl.title('Annual average velocity series')
 pl.xlabel('Time (yr)')
 pl.ylabel('Velocity (m/yr)')
 pl.ylim(0,150)

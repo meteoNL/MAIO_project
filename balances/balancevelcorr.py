@@ -20,7 +20,7 @@ bal=np.zeros(np.shape(data))
 data[:,0]=np.genfromtxt('meltimes.txt', delimiter='\t')[:-2]
 
 #names of locations 
-names=['S4','S5','S6','S7','S8','S9','SHR']
+names=['SHR','S4','S5','S6','S7','S8','S9']
 counter=1
 min_length=85
 min_length_s=21
@@ -146,10 +146,10 @@ def crosscor(array):
     #[0::2] gives lagyears, [1::2] gives crosscorr
     return crosscorrlist[0::2],crosscorrlist[1::2]
 
-def plotting(lag,y):
+def plotting(lag,y,j):
     #define function for lag correlations plot
-    pl.scatter(lag,y)
-    pl.plot(lag,y,label=key)
+    pl.scatter(lag,y,c=(0.14*j,1.-0.14*j,1.-0.14*j))
+    pl.plot(lag,y,label=key,c=(0.14*j,1.-0.14*j,1.-0.14*j))
 
 #create empty dictionaries for data    
 yearlagcorr={}
@@ -165,10 +165,12 @@ for key in names:
 
 #plot this time series
 pl.figure(figsize=(12,8))
+j=0
 for key in names:     
-    season=', annual',plotting(yearlagcorr[key][0],yearlagcorr[key][1])
-    #season=' summer',plotting(summerlagcorr[key][0],summerlagcorr[key][1])
-    #season=' winter', plotting(winterlagcorr[key][0],winterlagcorr[key][1])
+    season=', annual',plotting(yearlagcorr[key][0],yearlagcorr[key][1],j)
+    #season=' summer',plotting(summerlagcorr[key][0],summerlagcorr[key][1],j)
+    #season=' winter', plotting(winterlagcorr[key][0],winterlagcorr[key][1],j)
+    j+=1
 pl.title('Balance and velocity relation'+str(season[0]))
 pl.ylabel('Correlation coefficient (-)')
 pl.xlim(0,9)
