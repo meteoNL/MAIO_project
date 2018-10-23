@@ -23,7 +23,16 @@ data[:,0]=np.genfromtxt('meltimes.txt', delimiter='\t')[:-2]
 names=['S4','S5','S6','S7','S8','S9','SHR']
 counter=1
 min_length=85
-min_length_s=23
+min_length_s=21
+min_length_w=66
+
+#conversion mass balance year and calender year
+bgnyr=-1./3
+endyr=+2./3
+bgns=+5./12
+ends=+2./3
+bgnw=bgnyr
+endw=bgns
 
 #read balance data
 for i in names:
@@ -50,11 +59,24 @@ pl.show()
 #velocity correlations
 start=1994 #starting year balance data
 end=2016 #ending year balance data
+
+def period(y,begin,end,vel,time,min_len):
+    #calculates mean velocity over a period of the year for year y plus or minus begin and end value, as selected from the time and velocity arrays delivered and with given required number of records available
+    yr=y+begin
+    ys=y+end
+    largerth=vel[time>yr]
+    tlargerth=time[time>yr]
+    smallerth=largerth[tlargerth<ys]
+    if len(smallerth)>min_len:
+        meanvel=np.mean(smallerth)
+    else:
+        meanvel=np.nan
+    return meanvel
+
 def corr_vel(site):
     #correlates summer and annual velocity, given the site name
     #initiate storage array
-    ymbvel=np.zeros((22,3))
-    ymbvels=np.zeros((22,3))
+    ymbvel,ymbvels,ymbvelw=np.zeros((22,3)),np.zeros((22,3)),np.zeros((22,3))
     
     #name file and import its data with velocities for the respective site with time as 0th and velocity as 3th column
     nm=site+'.csv'
@@ -67,41 +89,20 @@ def corr_vel(site):
     
     #loop over all years
     for y in range(start,end):
-        #annual velocity mean: selection of the velocity data with time smaller than or larger than 1 september value, calculate their mean and save in array for year y
-        yr=y-1./3
-        largerth=vel[vel_time>yr]
-        tlargerth=vel_time[vel_time>yr]
-        smallerth=largerth[tlargerth<yr+1.]
-        if len(smallerth)>min_length:
-            meanvel=np.mean(smallerth)
-            
-            #add year number from balance array and mass balance as well as mean velocity to array with results
-            ymbvel[y-start,0]=bal[(y-end),0]
-            ymbvel[y-start,1]=meanvel
-            ymbvel[y-start,2]=bal[(y-end),ind]
-        else:
-            ymbvel[y-start,0]=bal[(y-end),0]
-            ymbvel[y-start,1]=np.nan
-            ymbvel[y-start,2]=bal[(y-end),ind]
-            
-        #summer velocity mean: selection of the velocity data with time smaller than or larger than 1 september value, calculate their mean and save in array for year y
-        ysmin=y-7./12#0.41-1.00 is day 150 approx. 30 May
+        #annual velocity mean: selection of the velocity data with time smaller than or larger than 1 september value, calculate their mean and save in array for year y            
+        #add year number from balance array and mass balance as well as mean velocity to array with results
+        ymbvel[y-start,0]=bal[(y-end),0]
+        ymbvel[y-start,1]=period(y,bgnyr,endyr,vel,vel_time,min_length)
+        ymbvel[y-start,2]=bal[(y-end),ind]
+
+        #write balances also to winter and summer array
+        ymbvels[y-start,0],ymbvelw[y-start,0]=bal[(y-end),0],bal[(y-end),0]
+        ymbvels[y-start,2],ymbvelw[y-start,2]=bal[(y-end),ind],bal[(y-end),ind]
         
-        #shouldn't this be September 1st = -1./3
-        ysplus=y-1./3
-        largerths=vel[vel_time>ysmin]
-        tlargerths=vel_time[vel_time>ysmin]
-        smallerths=largerths[tlargerths<ysplus]
-        if len(smallerths)>min_length_s:
-            meanvels=np.mean(smallerths)
-            ymbvels[y-start,0]=bal[(y-end),0]
-            ymbvels[y-start,1]=meanvels
-            ymbvels[y-start,2]=bal[(y-end),ind]
-        else:
-            ymbvels[y-start,0]=bal[(y-end),0]
-            ymbvels[y-start,1]=np.nan
-            ymbvels[y-start,2]=bal[(y-end),ind]
-    
+        #calculate seasonal mean and add to array
+        ymbvels[y-start,1]=period(y,bgns,ends,vel,vel_time,min_length_s)
+        ymbvelw[y-start,1]=period(y,bgnw,endw,vel,vel_time,min_length_w)
+        
     #visualize velocity and balance relations in scatterplot
     pl.figure()
     pl.scatter(ymbvel[:,1],ymbvel[:,2])
@@ -109,7 +110,7 @@ def corr_vel(site):
     pl.figure()
     pl.scatter(ymbvels[:,1],ymbvels[:,2], c='g')
     pl.show() 
-    return ymbvel, ymbvels
+    return ymbvel, ymbvels,ymbvelw
 
 #do all correlations and save in dictionary
 correlations={}
@@ -145,28 +146,33 @@ def crosscor(array):
     #[0::2] gives lagyears, [1::2] gives crosscorr
     return crosscorrlist[0::2],crosscorrlist[1::2]
 
-def plotting(lag,y,season):
+def plotting(lag,y):
     #define function for lag correlations plot
+    pl.scatter(lag,y)
     pl.plot(lag,y,label=key)
 
 #create empty dictionaries for data    
 yearlagcorr={}
 summerlagcorr={}
+winterlagcorr={}
 
 for key in names:
     #get data named above and calculate the correlation as function of time 
-    yearcrosscorsite,summercrosscorsite=correlations[key][0],correlations[key][1]
+    yearcrosscorsite,summercrosscorsite,wintercrosscorsite=correlations[key][0],correlations[key][1],correlations[key][2]
     yearlagcorr[key]=crosscor(yearcrosscorsite)
     summerlagcorr[key]=crosscor(summercrosscorsite)
+    winterlagcorr[key]=crosscor(wintercrosscorsite)
 
 #plot this time series
 pl.figure(figsize=(12,8))
 for key in names:     
-    plotting(yearlagcorr[key][0],yearlagcorr[key][1],'year')
-    #plotting(summerlagcorr[key][0],summerlagcorr[key][1], 'summer')
-pl.title('Balance and velocity ')
-pl.ylabel('Cross correlation')
+    season=', annual',plotting(yearlagcorr[key][0],yearlagcorr[key][1])
+    #season='summer',plotting(summerlagcorr[key][0],summerlagcorr[key][1])
+    #season='winter', plotting(winterlagcorr[key][0],winterlagcorr[key][1])
+pl.title('Balance and velocity relation '+str(season[0]))
+pl.ylabel('Correlation coefficient (-)')
+pl.xlim(0,9)
 pl.xlabel('Lag (yr)')
 pl.grid()
-pl.legend()
+pl.legend(loc=1)
 pl.show()

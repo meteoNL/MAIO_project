@@ -42,6 +42,7 @@ for key in values:
     lin_time_trend=linreg(time,vel)
 print('annual trends')
 
+pl.figure(figsize=(12,8))
 #annual velocities time trend    
 for key in values:
     
@@ -74,14 +75,18 @@ for key in values:
     new_time=new_time[new_time>0]
     
     #plot result
-    pl.figure(figsize=(12,8))
-    pl.title(key+' velocity per year')
-    pl.xlabel('Time (yr)')
-    pl.ylabel('Velocity (m/yr)')
-    pl.plot(new_time,new_vel)
+    pl.scatter(new_time,new_vel)
+    pl.plot(new_time,new_vel,label=key)
     
     #calculate statistical time trend significance using scipy linalg regression function
     linreg(new_time,new_vel)
             
-        
+pl.title('Annual average velocity based on 4 day samples')
+pl.xlabel('Time (yr)')
+pl.ylabel('Velocity (m/yr)')
+pl.ylim(0,150)
+pl.grid()
+pl.xlim(2002,2019)
+pl.legend(loc=2)
+pl.show()        
     
