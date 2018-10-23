@@ -48,13 +48,13 @@ pl.grid(True)
 pl.show()
   
 #velocity correlations
-start=2005 #starting year balance data
+start=1994 #starting year balance data
 end=2016 #ending year balance data
 def corr_vel(site):
     #correlates summer and annual velocity, given the site name
     #initiate storage array
-    ymbvel=np.zeros((12,3))
-    ymbvels=np.zeros((12,3))
+    ymbvel=np.zeros((22,3))
+    ymbvels=np.zeros((22,3))
     
     #name file and import its data with velocities for the respective site with time as 0th and velocity as 3th column
     nm=site+'.csv'
@@ -79,25 +79,28 @@ def corr_vel(site):
             ymbvel[y-start,0]=bal[(y-end),0]
             ymbvel[y-start,1]=meanvel
             ymbvel[y-start,2]=bal[(y-end),ind]
+        else:
+            ymbvel[y-start,0]=bal[(y-end),0]
+            ymbvel[y-start,1]=np.nan
+            ymbvel[y-start,2]=bal[(y-end),ind]
             
         #summer velocity mean: selection of the velocity data with time smaller than or larger than 1 september value, calculate their mean and save in array for year y
-        ysmin=y-0.59#0.41-1.00 is day 150 approx. 30 May
+        ysmin=y-7./12#0.41-1.00 is day 150 approx. 30 May
         
         #shouldn't this be September 1st = -1./3
-        ysplus=y-0.32
+        ysplus=y-1./3
         largerths=vel[vel_time>ysmin]
         tlargerths=vel_time[vel_time>ysmin]
         smallerths=largerths[tlargerths<ysplus]
         if len(smallerths)>min_length_s:
             meanvels=np.mean(smallerths)
             ymbvels[y-start,0]=bal[(y-end),0]
-            print(bal[(y-end),0],yr,yr+1.)
             ymbvels[y-start,1]=meanvels
             ymbvels[y-start,2]=bal[(y-end),ind]
-        
-    #remove values that were not calculated and are therefore still initiated zeros        
-    ymbvel=ymbvel[ymbvel[:,1]>0]
-    ymbvels=ymbvels[ymbvels[:,1]>0]
+        else:
+            ymbvels[y-start,0]=bal[(y-end),0]
+            ymbvels[y-start,1]=np.nan
+            ymbvels[y-start,2]=bal[(y-end),ind]
     
     #visualize velocity and balance relations in scatterplot
     pl.figure()
@@ -108,11 +111,6 @@ def corr_vel(site):
     pl.show() 
     return ymbvel, ymbvels
 
-#do the correlation, now for S7
-corr_S7,corr_S7_summer=corr_vel('S7')
-print(corr_S7)
-S6_dat=corr_vel('S6')
-
 #do all correlations and save in dictionary
 correlations={}
 for key in names:
@@ -121,49 +119,54 @@ for key in names:
 #correlation function for different time lags
 def crosscor(array):
     lijst1,lijst2,timelist=array[:,2],array[:,1],array[:,0]
-    
-    #empty array to save data
     crosscorrlist=np.array([])
 
     
     #loop over any lags that doesn't have less than 3 observations (because correlation cann not be calculated with 2 obs)
-    for lag in range (0,int(len(lijst1)-1)):
+    for lag in range (0,8):
         if len(lijst2[lag:])>2:
             
             #calculate correlation coefficient
+            #apply first proper selection: select x-series and y-series (mass balance and velocity) for this lag and remove nan's
+            x=lijst1[:(len(lijst1)-lag)]
+            y=lijst2[lag:]
             
-            #note: the following print statement indicates that the function doesn't work properly if the record is incomplete!!! e.g. for S4 and S5 (so for these the results are not directly interpretable)
-            print((timelist[:(len(lijst1)-lag)]-timelist[lag:]))
-            print(key)
+            #remove nan's in y
+            x=x[y<np.inf]
+            y=y[y<np.inf]
             
-            crosscorr=np.corrcoef(lijst1[:(len(lijst1)-lag)],lijst2[lag:])[0,1]
+            #calculate correlation coefficient
+            crosscorr=np.corrcoef(x,y)[0,1]
             lagyears=timelist[lag]-timelist[0]
-            #end of correlation coefficient
             
-            #append it to the array that saves data
+            #append correlation coefficient to the array that saves data
             crosscorrlist=np.append(crosscorrlist,[lagyears,crosscorr])
             
-    #[0::3] gives lagyears, [1::3] gives crosscorr
+    #[0::2] gives lagyears, [1::2] gives crosscorr
     return crosscorrlist[0::2],crosscorrlist[1::2]
 
 def plotting(lag,y,season):
-    pl.figure()
-    pl.plot(lag,y,'b')
-    pl.title('Balance and velocity '+str(key)+' '+str(season))
-    pl.ylabel('Cross correlation')
-    pl.xlabel('Lag')
-    pl.grid()
-    pl.show()
+    #define function for lag correlations plot
+    pl.plot(lag,y,label=key)
 
+#create empty dictionaries for data    
 yearlagcorr={}
 summerlagcorr={}
 
 for key in names:
+    #get data named above and calculate the correlation as function of time 
     yearcrosscorsite,summercrosscorsite=correlations[key][0],correlations[key][1]
     yearlagcorr[key]=crosscor(yearcrosscorsite)
     summerlagcorr[key]=crosscor(summercrosscorsite)
 
+#plot this time series
+pl.figure(figsize=(12,8))
 for key in names:     
     plotting(yearlagcorr[key][0],yearlagcorr[key][1],'year')
-    plotting(summerlagcorr[key][0],summerlagcorr[key][1], 'summer')
-
+    #plotting(summerlagcorr[key][0],summerlagcorr[key][1], 'summer')
+pl.title('Balance and velocity ')
+pl.ylabel('Cross correlation')
+pl.xlabel('Lag (yr)')
+pl.grid()
+pl.legend()
+pl.show()
