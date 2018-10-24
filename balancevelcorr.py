@@ -213,7 +213,7 @@ for i in range(len(bal[0,:])-1):
     site=names[i]
     result=linreg(bal[:,0],bal[:,i+1])
     vel_data,ind=read_veldata(site)
-    hgt=np.mean(vel_data[:,6])
+    hgt=np.mean(vel_data[:,6][vel_data[:,6]<np.inf])
     balrate=np.mean(bal[:,i+1])
     verttrend[i,0],verttrend[i,1]=hgt,balrate
 for i in range(len(bal[0,:])-1):

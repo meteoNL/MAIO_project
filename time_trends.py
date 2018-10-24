@@ -5,6 +5,8 @@ Created on Sun Oct 21 09:29:28 2018
 @author: Inge, Edward
 """
 
+#HIERONDER WORDT DE OLD S9 GEBRUKT OMDAT DE SEASONAL CYCLE WEGING ANDERS NOG AANGEPAST MOET)
+
 #imports
 import numpy as np
 import scipy as sp
