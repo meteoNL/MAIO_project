@@ -23,11 +23,24 @@ min_length=85 #length of observations per year criterion, in number of 96 hours 
 
 #empty dictionary
 values={}
+pl.figure(figsize=(12,8))
 #read data velocity per site
 for i in range(len(names)):
     name=names[i]+'.csv'
     array=np.genfromtxt(name, delimiter=';')
     values[name[:-4]]=array
+
+    pl.scatter(array[:,0],array[:,3],c=(0.14*i,1.-0.14*i,1.-0.14*i),s=2,label=names[i])
+    #pl.plot(array[:,0],array[:,3],c=(0.14*i,1.-0.14*i,1.-0.14*i),label=key)
+      
+pl.title('Velocity series (96h average) at all sites')
+pl.xlabel('Time (yr)')
+pl.ylabel('Velocity (m/yr)')
+pl.ylim(0,400)
+pl.grid()
+pl.xlim(2002,2019)
+pl.legend(loc=2)
+pl.show()        
 
 #linear regression function with significance from scipy
 def linreg(time,vel):
