@@ -145,7 +145,7 @@ def crosscor(array):
             y=y[y<np.inf]
             
             #calculate correlation coefficient
-            crosscorr=np.corrcoef(x,y)[0,1]
+            crosscorr=st.linregress(x,y)[2]
             lagyears=timelist[lag]-timelist[0]
             
             #append correlation coefficient to the array that saves data
