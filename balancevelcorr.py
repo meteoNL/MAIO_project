@@ -9,6 +9,8 @@ Created on Wed Oct 10 14:45:41 2018
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as pl
+import scipy as sp
+import scipy.stats as st
 
 #getting ready for plotting and saving data
 pl.close("all")
@@ -49,9 +51,9 @@ bal[1:,1:]=data[1:,1:]-data[:-1,1:]
 pl.plot(bal[:,0],bal[:,1:])
 
 #visualization of mass balances
-pl.title('Balances (mwe/year)')
+pl.title('Time series of balance rate')
 pl.xlabel('Time (year)')
-pl.ylabel('Balances (mwe/year)')
+pl.ylabel('Balance rate (mwe/year)')
 pl.grid(True)
 #pl.savefig("balances.png")  
 pl.show()
@@ -73,17 +75,23 @@ def period(y,begin,end,vel,time,min_len):
         meanvel=np.nan
     return meanvel
 
-def corr_vel(site):
-    #correlates summer and annual velocity, given the site name
-    #initiate storage array
-    ymbvel,ymbvels,ymbvelw=np.zeros((22,3)),np.zeros((22,3)),np.zeros((22,3))
-    
+def read_veldata(site):
     #name file and import its data with velocities for the respective site with time as 0th and velocity as 3th column
     nm=site+'.csv'
     for i in range(len(names)):
         if names[i]==site:
             ind=(i+1)
     vel_data=np.genfromtxt(nm, delimiter=';')
+    return vel_data,ind
+
+
+def corr_vel(site):
+    #correlates summer and annual velocity, given the site name
+    #initiate storage array
+    ymbvel,ymbvels,ymbvelw=np.zeros((22,3)),np.zeros((22,3)),np.zeros((22,3))
+    
+    #read the velocity data and select the appropriate columns
+    vel_data,ind=read_veldata(site)
     vel_time=vel_data[:,0]
     vel=vel_data[:,3]
     
@@ -151,6 +159,16 @@ def plotting(lag,y,j):
     pl.scatter(lag,y,c=(0.14*j,1.-0.14*j,1.-0.14*j))
     pl.plot(lag,y,label=key,c=(0.14*j,1.-0.14*j,1.-0.14*j))
 
+def betterplot():
+    pl.title('Balance rate and velocity relation'+str(season[0]))
+    pl.ylabel('Correlation coefficient (-)')
+    pl.xlim(0,9)
+    pl.ylim(-1,1)
+    pl.xlabel('Lag (yr)')
+    pl.grid()
+    pl.legend(loc=1)
+    pl.show()
+
 #create empty dictionaries for data    
 yearlagcorr={}
 summerlagcorr={}
@@ -168,13 +186,47 @@ pl.figure(figsize=(12,8))
 j=0
 for key in names:     
     season=', annual',plotting(yearlagcorr[key][0],yearlagcorr[key][1],j)
-    #season=' summer',plotting(summerlagcorr[key][0],summerlagcorr[key][1],j)
-    #season=' winter', plotting(winterlagcorr[key][0],winterlagcorr[key][1],j)
     j+=1
-pl.title('Balance and velocity relation'+str(season[0]))
-pl.ylabel('Correlation coefficient (-)')
-pl.xlim(0,9)
-pl.xlabel('Lag (yr)')
+betterplot()
+pl.figure(figsize=(12,8))
+j=0
+for key in names:
+    season=' summer',plotting(summerlagcorr[key][0],summerlagcorr[key][1],j)
+    j+=1
+betterplot()
+pl.figure(figsize=(12,8))
+j=0
+for key in names:
+    season=' winter', plotting(winterlagcorr[key][0],winterlagcorr[key][1],j)
+    j+=1
+betterplot()
+
+
+#significance of trend of balance rates
+def linreg(x,y):
+    lin_time_trend=st.linregress(x,y)
+    print(names[i], lin_time_trend)
+    return lin_time_trend
+verttrend=np.zeros(((len(bal[0,:])-1),2))
+pl.figure(figsize=(12,8))
+for i in range(len(bal[0,:])-1):
+    site=names[i]
+    result=linreg(bal[:,0],bal[:,i+1])
+    vel_data,ind=read_veldata(site)
+    hgt=np.mean(vel_data[:,6])
+    balrate=np.mean(bal[:,i+1])
+    verttrend[i,0],verttrend[i,1]=hgt,balrate
+for i in range(len(bal[0,:])-1):
+    pl.scatter(verttrend[i,0],verttrend[i,1],s=50,label=names[i],marker='o',c=(0.14*i,1.-0.14*i,1.-0.14*i))
+print('balance/height ')
+regresult=linreg(verttrend[:,0],verttrend[:,1])
+hgtnew=np.linspace(0,2000,20)
+pl.plot(hgtnew,regresult[0]*hgtnew+regresult[1],c='black',label='Fit')
+pl.xlim(0,2000)
+pl.ylim(-6,2)
+pl.legend(loc=2)
+pl.xlabel('Height above SL (m)')
+pl.ylabel('Balance rate (mwe/yr)')
+pl.title('Balance rate gradient relation observed in K-transect')
 pl.grid()
-pl.legend(loc=1)
 pl.show()
