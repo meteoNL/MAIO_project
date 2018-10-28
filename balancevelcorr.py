@@ -24,9 +24,9 @@ data[:,0]=np.genfromtxt('meltimes.txt', delimiter='\t')[:-2]
 #names of locations 
 names=['SHR','S4','S5','S6','S7','S8','S9']
 counter=1
-min_length=85
-min_length_s=21
-min_length_w=64
+min_length=81.5
+min_length_s=20.5
+min_length_w=60.5
 
 #conversion mass balance year and calender year
 bgnyr=-1./3

@@ -21,7 +21,7 @@ mpl.rcParams.update({'font.size': 21})
 names=['SHR','S4','S5','S6','S7','S8','S9','S10'] #names of sites
 start=2006 #start year
 end=2019 #end year plus one
-min_length=85 #length of observations per year criterion, in number of 96 hours intervals 
+min_length=81.5 #length of observations per year criterion, in number of 96 hours intervals 
 
 #empty dictionary
 values={}
