@@ -24,7 +24,6 @@ data[:,0]=np.genfromtxt('meltimes.txt', delimiter='\t')[:-2]
 #names of locations 
 names=['SHR','S4','S5','S6','S7','S8','S9']
 counter=1
-#note that previously calculated S9 velocities by Roderik automatically pass these criteria, but they were assessed and found complete. 
 min_length=81.5
 min_length_s=20.5
 min_length_w=60.5
@@ -61,8 +60,7 @@ pl.show()
   
 #velocity correlations
 start=1990 #starting year balance data
-end=2019 #ending velocity balance data
-endb=2016 #end balance data
+end=2016 #ending year balance data
 
 def period(y,begin,end,vel,time,min_len):
     #calculates mean velocity over a period of the year for year y plus or minus begin and end value, as selected from the time and velocity arrays delivered and with given required number of records available
@@ -71,10 +69,6 @@ def period(y,begin,end,vel,time,min_len):
     largerth=vel[time>yr]
     tlargerth=time[time>yr]
     smallerth=largerth[tlargerth<ys]
-    
-    #print if on the edge of criterion
-    if len(smallerth) < 1.05*min_len and len(smallerth)!=0:
-        print(len(smallerth),key,y)
     if len(smallerth)>min_len:
         meanvel=np.mean(smallerth)
     else:
@@ -94,7 +88,7 @@ def read_veldata(site):
 def corr_vel(site):
     #correlates summer and annual velocity, given the site name
     #initiate storage array
-    ymbvel,ymbvels,ymbvelw=np.zeros((29,3)),np.zeros((29,3)),np.zeros((29,3))
+    ymbvel,ymbvels,ymbvelw=np.zeros((26,3)),np.zeros((26,3)),np.zeros((26,3))
     
     #read the velocity data and select the appropriate columns
     vel_data,ind=read_veldata(site)
@@ -102,46 +96,40 @@ def corr_vel(site):
     vel=vel_data[:,3]
     
     #loop over all years
-    for y in range(start,endb):
+    for y in range(start,end):
         #annual velocity mean: selection of the velocity data with time smaller than or larger than 1 september value, calculate their mean and save in array for year y            
         #add year number from balance array and mass balance as well as mean velocity to array with results
-        ymbvel[y-start,0]=bal[(y-endb),0]
+        ymbvel[y-start,0]=bal[(y-end),0]
         ymbvel[y-start,1]=period(y,bgnyr,endyr,vel,vel_time,min_length)
-        ymbvel[y-start,2]=bal[(y-endb),ind]
+        ymbvel[y-start,2]=bal[(y-end),ind]
 
         #write balances also to winter and summer array
-        ymbvels[y-start,0],ymbvelw[y-start,0]=bal[(y-endb),0],bal[(y-endb),0]
-        ymbvels[y-start,2],ymbvelw[y-start,2]=bal[(y-endb),ind],bal[(y-endb),ind]
+        ymbvels[y-start,0],ymbvelw[y-start,0]=bal[(y-end),0],bal[(y-end),0]
+        ymbvels[y-start,2],ymbvelw[y-start,2]=bal[(y-end),ind],bal[(y-end),ind]
         
         #calculate seasonal mean and add to array
         ymbvels[y-start,1]=period(y,bgns,ends,vel,vel_time,min_length_s)
         ymbvelw[y-start,1]=period(y,bgnw,endw,vel,vel_time,min_length_w)
         
-    #add data from 2016 and 2017 and 2018, no balance data
-    for y in range(endb,end):
-        ymbvel[y-start,0],ymbvels[y-start,0],ymbvelw[y-start,0]=y+0.5,y+0.5,y+0.5
-        ymbvel[y-start,1],ymbvels[y-start,1],ymbvelw[y-start,1]=period(y,bgnyr,endyr,vel,vel_time,min_length),period(y,bgns,ends,vel,vel_time,min_length_s),period(y,bgnw,endw,vel,vel_time,min_length_w)
-        ymbvel[y-start,2],ymbvels[y-start,2],ymbvelw[y-start,2]=np.nan,np.nan,np.nan
+    #visualize velocity and balance relations in scatterplot
+    pl.figure()
+    pl.scatter(ymbvel[:,1],ymbvel[:,2])
+    pl.show() 
+    pl.figure()
+    pl.scatter(ymbvels[:,1],ymbvels[:,2], c='g')
+    pl.show() 
     return ymbvel, ymbvels,ymbvelw
 
 #do all correlations and save in dictionary
 correlations={}
 for key in names:
     correlations[key]=corr_vel(key)
-    
-##### ADD IWS DATA FROM FILEs ####
-correlations['S5'][0][-3:-1,1]=np.load('iwsannualS5.npy')[:,1]
-correlations['S5'][1][-3:,1]=np.load('iwssummerS5.npy')[:,1]
-correlations['S5'][2][-3:,1]=np.load('iwswinterS5.npy')[:,1]
-correlations['S6'][0][-3:-1,1]=np.load('iwsannualS6.npy')[:,1]
-correlations['S6'][1][-3:,1]=np.load('iwssummerS6.npy')[:,1]
-correlations['S6'][2][-3:,1]=np.load('iwswinterS6.npy')[:,1]
-
 
 #correlation function for different time lags
 def crosscor(array):
     lijst1,lijst2,timelist=array[:,2],array[:,1],array[:,0]
     crosscorrlist=np.array([])
+
     
     #loop over any lags that doesn't have less than 3 observations (because correlation cann not be calculated with 2 obs)
     for lag in range (0,8):
@@ -152,11 +140,9 @@ def crosscor(array):
             x=lijst1[:(len(lijst1)-lag)]
             y=lijst2[lag:]
             
-            #remove nan's in y and x
+            #remove nan's in y
             x=x[y<np.inf]
             y=y[y<np.inf]
-            y=y[x<np.inf]
-            x=x[x<np.inf]
             
             #calculate correlation coefficient
             crosscorr=st.linregress(x,y)[2]

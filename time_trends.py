@@ -85,7 +85,10 @@ for key in names:
             new_vel[i]=vel_yr
         i+=1
       #  print(key,y,vel_yr)
-      
+    if key == 'S5' or key == 'S6':
+        fn='iwsannual'+key+'.npy'
+        new_vel[-3:-1]=np.load(fn)[:,1]
+        new_time[-3:-1]=np.array([2016.,2017.])
     #remove zeros
     new_vel=new_vel[new_time>0]
     new_time=new_time[new_time>0]
