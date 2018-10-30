@@ -21,9 +21,9 @@ mpl.rcParams.update({'font.size': 21})
 names=['SHR','S4','S5','S6','S7','S8','S9','S10'] #names of sites
 start=2006 #start year
 end=2019 #end year plus one
-min_length=80.5 #length of observations per year criterion, in number of 96 hours intervals 
-season='annual'
-seasonbgn=-1./3
+min_length=21.5 #length of observations per year criterion, in number of 96 hours intervals 
+season='winter'
+seasonbgn=5./12
 seasonend=8./12
 pl.figure(figsize=(12,8))
 if season != 'annual':
@@ -97,9 +97,12 @@ for key in names:
         if season == 'annual':
             new_vel[-3:-1]=np.load(fn)[:2,1]
             new_time[-3:-1]=np.array([2016.,2017.])
-        else:
-            new_vel[-3:]=np.load(fn)[:,1]
-            new_time[-3:]=np.array([2016.,2017.,2018.])
+        elif key == 'S6' and season == 'winter':
+            new_vel[-2]=np.load(fn)[0,1]
+            new_time[-2]=np.array([2017.])
+        elif key == 'S6' and season == 'summer':
+            new_vel[-3]=np.load(fn)[0,1]
+            new_time[-3]=np.array([2016.])
     #remove zeros
     new_vel=new_vel[new_time>0]
     new_time=new_time[new_time>0]
@@ -112,7 +115,7 @@ for key in names:
     linreg(new_time,new_vel)
     j+=1
             
-pl.title(season+' average velocity series')
+#pl.title(season+' average velocity series')
 pl.xlabel('Time (yr)')
 pl.ylabel('Velocity (m/yr)')
 pl.ylim(0,180)

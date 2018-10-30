@@ -131,11 +131,9 @@ for key in names:
     
 ##### ADD IWS DATA FROM FILEs ####
 correlations['S5'][0][-3:-1,1]=np.load('iwsannualS5.npy')[:,1]
-correlations['S5'][1][-3:,1]=np.load('iwssummerS5.npy')[:,1]
-correlations['S5'][2][-3:,1]=np.load('iwswinterS5.npy')[:,1]
 correlations['S6'][0][-3:-1,1]=np.load('iwsannualS6.npy')[:,1]
-correlations['S6'][1][-3:,1]=np.load('iwssummerS6.npy')[:,1]
-correlations['S6'][2][-3:,1]=np.load('iwswinterS6.npy')[:,1]
+correlations['S6'][1][-3,1]=np.load('iwssummerS6.npy')[:,1]
+correlations['S6'][2][-2,1]=np.load('iwswinterS6.npy')[:,1]
 
 
 #correlation function for different time lags
@@ -174,7 +172,7 @@ def plotting(lag,y,j):
     pl.plot(lag,y,label=key,c=(0.14*j,1.-0.14*j,1.-0.14*j))
 
 def betterplot():
-    pl.title('Balance rate and velocity relation'+str(season[0]))
+#    pl.title('Balance rate and velocity relation'+str(season[0]))
     pl.ylabel('Correlation coefficient (-)')
     pl.xlim(0,9)
     pl.ylim(-1,1)
@@ -241,6 +239,6 @@ pl.ylim(-6,2)
 pl.legend(loc=2)
 pl.xlabel('Height above SL (m)')
 pl.ylabel('Balance rate (mwe/yr)')
-pl.title('Balance rate gradient relation observed in K-transect')
+#pl.title('Balance rate gradient relation observed in K-transect')
 pl.grid()
 pl.show()

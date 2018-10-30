@@ -22,7 +22,7 @@ crit_dt=1.25 #critical relative (to navg) time interval to accept a velocity sam
 
 #%% read data
 #filename
-fn='S6'
+fn='S5'
 fn=fn+'.txt'
 f=open(fn)
 
