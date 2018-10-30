@@ -17,7 +17,7 @@ mpl.rcParams.update({'font.size': 21})
 names=['SHR','S4','S5','S6','S7','S8','S9 (old)','S10'] #names of sites
 start=2006 #start year
 end=2019 #end year plus one
-num=91
+num=91 #or 46 or another number, 30
 ndays=365
 disctime=np.linspace(0,1,num)#[:-1]
 

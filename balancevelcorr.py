@@ -25,7 +25,7 @@ data[:,0]=np.genfromtxt('meltimes.txt', delimiter='\t')[:-2]
 names=['SHR','S4','S5','S6','S7','S8','S9']
 counter=1
 #note that previously calculated S9 velocities by Roderik automatically pass these criteria, but they were assessed and found complete. 
-min_length=81.5
+min_length=80.5
 min_length_s=20.5
 min_length_w=60.5
 
