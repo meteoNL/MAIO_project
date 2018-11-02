@@ -22,7 +22,7 @@ bal=np.zeros(np.shape(data))
 data[:,0]=np.genfromtxt('meltimes.txt', delimiter='\t')[:-2]
 
 #names of locations 
-names=['SHR','S4','S5','S6','S7','S8','S9']
+names=['S4','S5','SHR','S6','S7','S8','S9']
 counter=1
 #note that previously calculated S9 velocities by Roderik automatically pass these criteria, but they were assessed and found complete. 
 min_length=80.5

@@ -14,7 +14,7 @@ import matplotlib as mpl
 pl.close("all")
 mpl.rcParams.update({'font.size': 21})
 
-names=['SHR','S4','S5','S6','S7','S8','S9 (old)','S10'] #names of sites
+names=['S4','S5','SHR','S6','S7','S8','S9 (old)','S10'] #names of sites
 start=2006 #start year
 end=2019 #end year plus one
 num=46

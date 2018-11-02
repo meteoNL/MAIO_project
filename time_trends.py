@@ -18,7 +18,7 @@ import matplotlib as mpl
 pl.close("all")
 mpl.rcParams.update({'font.size': 21})
 
-names=['SHR','S4','S5','S6','S7','S8','S9','S10'] #names of sites
+names=['S4','S5','SHR','S6','S7','S8','S9','S10'] #names of sites
 start=2006 #start year
 end=2019 #end year plus one
 min_length=21.5 #length of observations per year criterion, in number of 96 hours intervals 
@@ -108,8 +108,10 @@ for key in names:
     new_time=new_time[new_time>0]
     
     #plot result
-    pl.scatter(new_time,new_vel,c=(0.14*j,1.-0.14*j,1.-0.14*j))
-    pl.plot(new_time,new_vel,c=(0.14*j,1.-0.14*j,1.-0.14*j),label=key)
+    q=-0.14
+    p=-0.9
+    pl.scatter(new_time,new_vel,c=(abs(-p+q*j)%1,abs(p-2*q*j)%1,abs(p-q*j)%1))
+    pl.plot(new_time,new_vel,c=(abs(-p+q*j)%1,abs(p-2*q*j)%1,abs(p-q*j)%1),label=key)
     
     #calculate statistical time trend significance using scipy linalg regression function
     linreg(new_time,new_vel)
@@ -120,7 +122,14 @@ pl.xlabel('Time (yr)')
 pl.ylabel('Velocity (m/yr)')
 pl.ylim(0,180)
 pl.grid()
-pl.xlim(2002,2019)
+pl.xlim(2006,2019)
+pl.text(2017.5,160,'SHR')
+pl.text(2017.5,132,'S5')
+pl.text(2017.5,126,'S8')
+pl.text(2017.5,102,'S9')
+pl.text(2017.5,96,'S4')
+pl.text(2017.5,82,'S7')
+pl.text(2017.5,56,'S10')
+pl.text(2017.5,50,'S6')
 pl.legend(loc=2)
-pl.show()        
-    
+pl.show()
