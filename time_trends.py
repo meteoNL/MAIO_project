@@ -21,8 +21,8 @@ mpl.rcParams.update({'font.size': 21})
 names=['S4','S5','SHR','S6','S7','S8','S9','S10'] #names of sites
 start=2006 #start year
 end=2019 #end year plus one
-min_length=21.5 #length of observations per year criterion, in number of 96 hours intervals 
-season='winter'
+min_length=20.5 #length of observations per year criterion, in number of 96 hours intervals 
+season='summer'
 seasonbgn=5./12
 seasonend=8./12
 pl.figure(figsize=(12,8))
@@ -110,26 +110,30 @@ for key in names:
     #plot result
     q=-0.14
     p=-0.9
-    pl.scatter(new_time,new_vel,c=(abs(-p+q*j)%1,abs(p-2*q*j)%1,abs(p-q*j)%1))
-    pl.plot(new_time,new_vel,c=(abs(-p+q*j)%1,abs(p-2*q*j)%1,abs(p-q*j)%1),label=key)
+    pl.scatter(new_time,new_vel,c=(0.14*j,1.-0.14*j,1.-0.14*j))
+    pl.plot(new_time,new_vel,c=(0.14*j,1.-0.14*j,1.-0.14*j),label=key)
     
     #calculate statistical time trend significance using scipy linalg regression function
     linreg(new_time,new_vel)
     j+=1
             
-#pl.title(season+' average velocity series')
+pl.title(season+' average velocity series')
+summerlabels=np.array([96,148,160,74,126,82,102,56])
+annuallabels=np.array([83,120,112,40,104,75,96,56])
+winterlabels=np.array([78,112,86,40,103,70,95,56])
 pl.xlabel('Time (yr)')
 pl.ylabel('Velocity (m/yr)')
 pl.ylim(0,180)
 pl.grid()
 pl.xlim(2006,2019)
-pl.text(2017.5,160,'SHR')
-pl.text(2017.5,132,'S5')
-pl.text(2017.5,126,'S8')
-pl.text(2017.5,102,'S9')
-pl.text(2017.5,96,'S4')
-pl.text(2017.5,82,'S7')
-pl.text(2017.5,56,'S10')
-pl.text(2017.5,50,'S6')
-pl.legend(loc=2)
+year=2017.5
+if season=='winter':
+    labelling=winterlabels
+elif season=='annual':
+    labelling=annuallabels
+elif season=='summer':
+    labelling=summerlabels
+for i in range(len(names)):
+    pl.text(year,labelling[i],str(names[i]))
+#pl.legend(loc=2)
 pl.show()

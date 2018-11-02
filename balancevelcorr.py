@@ -48,14 +48,19 @@ bal[:,0]=data[:,0]
 bal[0,:]=data[0,:]
 
 #do differential to calculate subsequent mass balance for eacch year
+pl.figure(figsize=(12,8))
 bal[1:,1:]=data[1:,1:]-data[:-1,1:]
-pl.plot(bal[:,0],bal[:,1:])
+for i in range(len(names)):
+    pl.plot(bal[:,0],bal[:,i+1],c=(0.14*i,1.-0.14*i,1.-0.14*i),label=names[i])
+    pl.scatter(bal[:,0],bal[:,i+1],c=(0.14*i,1.-0.14*i,1.-0.14*i))
 
 #visualization of mass balances
 pl.title('Time series of balance rate')
 pl.xlabel('Time (year)')
 pl.ylabel('Balance rate (mwe/year)')
 pl.grid(True)
+pl.legend(loc=1)
+pl.xlim(1990,2025)
 #pl.savefig("balances.png")  
 pl.show()
   
@@ -172,7 +177,7 @@ def plotting(lag,y,j):
     pl.plot(lag,y,label=key,c=(0.14*j,1.-0.14*j,1.-0.14*j))
 
 def betterplot():
-#    pl.title('Balance rate and velocity relation'+str(season[0]))
+    pl.title('Balance rate and velocity relation'+str(season[0]))
     pl.ylabel('Correlation coefficient (-)')
     pl.xlim(0,9)
     pl.ylim(-1,1)
@@ -239,6 +244,6 @@ pl.ylim(-6,2)
 pl.legend(loc=2)
 pl.xlabel('Height above SL (m)')
 pl.ylabel('Balance rate (mwe/yr)')
-#pl.title('Balance rate gradient relation observed in K-transect')
+pl.title('Balance rate gradient relation observed in K-transect')
 pl.grid()
 pl.show()
