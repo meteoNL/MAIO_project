@@ -117,7 +117,7 @@ for key in names:
     linreg(new_time,new_vel)
     j+=1
             
-pl.title(season+' average velocity series')
+#pl.title(season+' average velocity series')
 summerlabels=np.array([96,148,160,74,126,82,102,56])
 annuallabels=np.array([83,120,112,40,104,75,96,56])
 winterlabels=np.array([78,112,86,40,103,70,95,56])

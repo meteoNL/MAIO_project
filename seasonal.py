@@ -63,7 +63,7 @@ pl.legend()
 pl.show()
 
 pl.figure(figsize=(12,8))
-pl.title('Annual velocity cycle averaged over available years')
+#pl.title('Annual velocity cycle averaged over available years')
 for i in range(len(names)):
    # pl.scatter(data[:-1,0],data[:-1,i+1],label=names[i],c=(0.14*i,0.14,1.-0.14*i))
     pl.plot(data[:-1,0],data[:-1,i+1],label=names[i][:3],c=(0.14*i,1.-0.14*i,1.-0.14*i))

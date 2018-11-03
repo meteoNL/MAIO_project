@@ -55,9 +55,9 @@ for i in range(len(names)):
     pl.scatter(bal[:,0],bal[:,i+1],c=(0.14*i,1.-0.14*i,1.-0.14*i))
 
 #visualization of mass balances
-pl.title('Time series of balance rate')
+#pl.title('Time series of balance rate')
 pl.xlabel('Time (year)')
-pl.ylabel('Balance rate (mwe/year)')
+pl.ylabel('Balance rate (mwe/yr)')
 pl.grid(True)
 pl.legend(loc=1)
 pl.xlim(1990,2025)
@@ -140,7 +140,6 @@ correlations['S6'][0][-3:-1,1]=np.load('iwsannualS6.npy')[:,1]
 correlations['S6'][1][-3,1]=np.load('iwssummerS6.npy')[:,1]
 correlations['S6'][2][-2,1]=np.load('iwswinterS6.npy')[:,1]
 
-
 #correlation function for different time lags
 def crosscor(array):
     lijst1,lijst2,timelist=array[:,2],array[:,1],array[:,0]
@@ -164,6 +163,8 @@ def crosscor(array):
             #calculate correlation coefficient
             crosscorr=st.linregress(x,y)[2]
             lagyears=timelist[lag]-timelist[0]
+            if (lag == 1 or lag == 2) and key in names[-4:]: 
+                print(key,lag,st.linregress(x,y))
             
             #append correlation coefficient to the array that saves data
             crosscorrlist=np.append(crosscorrlist,[lagyears,crosscorr])
@@ -177,7 +178,7 @@ def plotting(lag,y,j):
     pl.plot(lag,y,label=key,c=(0.14*j,1.-0.14*j,1.-0.14*j))
 
 def betterplot():
-    pl.title('Balance rate and velocity relation'+str(season[0]))
+#    pl.title('Balance rate and velocity relation'+str(season[0]))
     pl.ylabel('Correlation coefficient (-)')
     pl.xlim(0,9)
     pl.ylim(-1,1)
@@ -244,6 +245,34 @@ pl.ylim(-6,2)
 pl.legend(loc=2)
 pl.xlabel('Height above SL (m)')
 pl.ylabel('Balance rate (mwe/yr)')
-pl.title('Balance rate gradient relation observed in K-transect')
+#pl.title('Balance rate gradient relation observed in K-transect')
 pl.grid()
 pl.show()
+
+dimcorrelations={}
+for key in correlations:
+    dimresults=np.zeros((3,len(correlations[key][0][:,0]),3))
+    for i in range(3):
+        dimresults[i,:,0]=correlations[key][i][:,0]
+        meanvel=np.mean(correlations[key][i][:,1][correlations[key][i][:,1]<np.inf])
+        meanbal=np.mean(correlations[key][i][:,2][correlations[key][i][:,2]<np.inf])
+        dimresults[i,:,1]=correlations[key][i][:,1]/meanvel
+        dimresults[i,:,2]=correlations[key][i][:,2]-meanbal
+        dimcorrelations[key]=dimresults
+        
+weights=np.array([2.9,5.6,16.0,17.6,11.3,19.5,13.1]) 
+weights=weights/np.sum(weights)
+
+result=np.zeros((len(correlations[key][0][:,0]),3))
+for key in dimcorrelations:
+    for i in range(len(names)):
+        if names[i]==key:
+            locweight=weights[i]
+        for j in range(len(correlations[key][0][:,0])):
+    
+            result[j,0]=dimcorrelations[key][0][j,0]
+            if dimcorrelations[key][0][j,1]!= np.nan:
+                result[j,1]+=locweight*dimcorrelations[key][0][j,1]
+            if dimcorrelations[key][0][j,2]!=np.nan: 
+                result[j,2]+=locweight*dimcorrelations[key][0][j,2]
+pl.plot(result[:,1],result[:,2])
