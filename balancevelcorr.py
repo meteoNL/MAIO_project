@@ -248,7 +248,8 @@ pl.ylabel('Balance rate (mwe/yr)')
 #pl.title('Balance rate gradient relation observed in K-transect')
 pl.grid()
 pl.show()
-
+'''' 
+Currently, the code below is not used. It was for testing, so far.
 dimcorrelations={}
 for key in correlations:
     dimresults=np.zeros((3,len(correlations[key][0][:,0]),3))
@@ -276,3 +277,4 @@ for key in dimcorrelations:
             if dimcorrelations[key][0][j,2]!=np.nan: 
                 result[j,2]+=locweight*dimcorrelations[key][0][j,2]
 pl.plot(result[:,1],result[:,2])
+'''
