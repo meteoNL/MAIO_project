@@ -278,3 +278,5 @@ for key in dimcorrelations:
                 result[j,2]+=locweight*dimcorrelations[key][0][j,2]
 pl.plot(result[:,1],result[:,2])
 '''
+for key in correlations:
+    np.savetxt(str(key)+'r.csv', correlations[key][0],delimiter=';')
