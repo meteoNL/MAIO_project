@@ -76,6 +76,7 @@ lats=lats[startind:endind]
 lons=lons[startind:endind]
 height=height[startind:endind]
 meanheight=np.mean(height)
+sdheight=np.std(height)
 print(np.max(height),np.min(height),np.std(height),meanheight)
 
 pl.plot(height)
@@ -83,9 +84,15 @@ pl.show()
 pl.hist(height,bins=60)
 #pl.ylim(0,50)
 pl.show()
-pl.hist(np.abs(height-meanheight),bins=50)
+pl.figure(figsize=(12,8))
+pl.hist(np.abs(height-meanheight)/sdheight,bins=50)
+pl.ylabel('number of samples')
+pl.xlabel(r'height: $\frac{|z-\mu|}{\sigma}$ (-)')
 pl.show()
-pl.hist(np.abs(height-meanheight),bins=50)
+pl.figure(figsize=(8,5))
+pl.hist(np.abs(height-meanheight)/sdheight,bins=50)
+pl.ylabel('number of samples')
+pl.xlabel(r'height: $\frac{|z-\mu|}{\sigma}$ (-)')
 pl.ylim(0,50)
 pl.show()
 
