@@ -61,7 +61,7 @@ timecom=dataset[:,0]
 lons=dataset[:,1]
 lats=dataset[:,2]
 height=dataset[:,3]
-
+#%%
 #remove zeros
 time=time[height>0]
 lons=lons[height>0]
