@@ -248,5 +248,3 @@ pl.ylabel('Balance rate (mwe/yr)')
 #pl.title('Balance rate gradient relation observed in K-transect')
 pl.grid()
 pl.show()
-for key in correlations:
-    np.savetxt(str(key)+'r.csv', correlations[key][0],delimiter=';')
