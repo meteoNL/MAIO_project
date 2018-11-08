@@ -175,14 +175,16 @@ def postproc():
     checkarray=np.zeros(1)
     
     while len(checkarray) > 0: 
+        #if one wishes to get insight in the data during the processing in terms of dimensionless deviations, these can be switched on.
+        #print(np.max(np.abs(gradlatsavg[:]-meangradlat))/stdgradlat)
+        #print(np.max(np.abs(gradlonsavg[:]-meangradlon))/stdgradlon)
         
-        print(np.max(np.abs(gradlatsavg[:]-meangradlat))/stdgradlat)
-        print(np.max(np.abs(gradlonsavg[:]-meangradlon))/stdgradlon)
         indices=np.arange(len(gradlatsavg))
         checkarray=indices[(np.abs(gradlatsavg-meangradlat))/stdgradlat > crit_std]
         checkarray=np.append((indices[(np.abs(gradlonsavg-meangradlon))/stdgradlon > crit_std]),checkarray)
         checkarray+=1
-        print(checkarray)
+        #print(checkarray)
+        
         for i in checkarray:
             #interpolate values of velocity based on nearest neighbours and use this to calculate a translation of the sensor for both lat and lon (only one neighbour in i = 0 or i = arraylength case)
             if i > 1 and i < len(lonsavg):
