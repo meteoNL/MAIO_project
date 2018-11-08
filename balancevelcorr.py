@@ -238,7 +238,7 @@ for i in range(len(bal[0,:])-1):
     pl.scatter(verttrend[i,0],verttrend[i,1],s=50,label=names[i],marker='o',c=(0.14*i,1.-0.14*i,1.-0.14*i))
 print('balance/height ')
 regresult=linreg(verttrend[:,0],verttrend[:,1])
-hgtnew=np.linspace(0,2000,20)
+hgtnew=np.linspace(verttrend[0,0],verttrend[-1,0],20)
 pl.plot(hgtnew,regresult[0]*hgtnew+regresult[1],c='black',label='Fit')
 pl.xlim(0,2000)
 pl.ylim(-6,2)
@@ -248,35 +248,5 @@ pl.ylabel('Balance rate (mwe/yr)')
 #pl.title('Balance rate gradient relation observed in K-transect')
 pl.grid()
 pl.show()
-'''' 
-Currently, the code below is not used. It was for testing, so far.
-dimcorrelations={}
-for key in correlations:
-    dimresults=np.zeros((3,len(correlations[key][0][:,0]),3))
-    for i in range(3):
-        dimresults[i,:,0]=correlations[key][i][:,0]
-        meanvel=np.mean(correlations[key][i][:,1][correlations[key][i][:,1]<np.inf])
-        meanbal=np.mean(correlations[key][i][:,2][correlations[key][i][:,2]<np.inf])
-        dimresults[i,:,1]=correlations[key][i][:,1]/meanvel
-        dimresults[i,:,2]=correlations[key][i][:,2]-meanbal
-        dimcorrelations[key]=dimresults
-        
-weights=np.array([2.9,5.6,16.0,17.6,11.3,19.5,13.1]) 
-weights=weights/np.sum(weights)
-
-result=np.zeros((len(correlations[key][0][:,0]),3))
-for key in dimcorrelations:
-    for i in range(len(names)):
-        if names[i]==key:
-            locweight=weights[i]
-        for j in range(len(correlations[key][0][:,0])):
-    
-            result[j,0]=dimcorrelations[key][0][j,0]
-            if dimcorrelations[key][0][j,1]!= np.nan:
-                result[j,1]+=locweight*dimcorrelations[key][0][j,1]
-            if dimcorrelations[key][0][j,2]!=np.nan: 
-                result[j,2]+=locweight*dimcorrelations[key][0][j,2]
-pl.plot(result[:,1],result[:,2])
-'''
 for key in correlations:
     np.savetxt(str(key)+'r.csv', correlations[key][0],delimiter=';')
