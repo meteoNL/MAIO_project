@@ -146,11 +146,6 @@ pl.ylabel('Height (m)')
 pl.xlabel('Time (yr)')
 pl.show()
 
-mean1=np.mean(height)
-std1=np.std(height)
-deviations11=np.subtract(height,mean1)
-deviation1=np.divide(deviations11,std1)
-
 #%%
 
 
@@ -186,18 +181,6 @@ def filter_dataset():
 
 
 filter_dataset()
-
-mean2=np.mean(height)
-std2=np.std(height)
-deviations22=np.subtract(height,mean2)
-deviation2=np.divide(deviations22,std2)
-line1=np.ones([])
-
-#%%
-pl.figure()
-pl.plot(timecom,deviation1,'bo')
-pl.plot(timecom,deviation2,'ko')
-
 
 #def filter_dataset():
 #    mean_height=np.mean(height)
