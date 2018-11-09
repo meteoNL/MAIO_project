@@ -135,15 +135,6 @@ lons=lons[:-iend]
 timecom=timecom[:-iend]
 print(len(timecom), len(lats), len(lons), len(height))
 
-meanlonssc=np.mean(lons)
-meanlatssc=np.mean(lats)
-meanheightsc=np.mean(height)
-standheightsc=np.std(height)
-heightscat1=np.subtract(height,meanheightsc)
-heightscat=np.divide(heightscat1,standheightsc)
-stdlinepl=np.ones([len(heightscat)])*10.
-stdlinemin=np.ones([len(heightscat)])*(-10.)
-
 
 
 def filter_dataset():
@@ -190,17 +181,6 @@ pl.grid()
 pl.ylabel('Height (m)')
 pl.xlabel('Time (yr)')
 pl.show()
-#%%
-meanheightsc2=np.mean(height)
-standheightsc2=np.std(height)
-heightscat12=np.subtract(height,meanheightsc2)
-heightscat2=np.divide(heightscat12,standheightsc2)
-
-pl.figure()
-pl.plot(heightscat,'bo')
-pl.plot(heightscat2,'ko')
-pl.plot(stdlinepl,'r')
-pl.plot(stdlinemin,'r')
 
 #%%
 time=timecom
